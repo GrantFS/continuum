@@ -1,0 +1,16 @@
+{
+    "name": "loopy/continuum",
+    "description": "Continuum - Laravel Package",
+    "type": "project",
+    "license": "MIT",
+    "authors": [{
+        "name": "",
+        "email": "me@me.com"
+    }],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.0.0",
+        "laravel/framework": ">=5.2"
+    },
+    "require-dev": {}
+}
