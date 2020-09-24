@@ -1,5 +1,44 @@
 # Continuum
 
+## Installation
+
+Add to composer.json
+
+```
+
+"repositories": [
+    {
+        "url": "https://github.com/GrantFS/continuum.git",
+        "type": "vcs"
+    }
+]
+
+```
+
+```
+
+composer require loopy/continuum
+
+
+```
+
+In config/app.php
+
+```
+'providers' => [
+    ...
+    Loopy\Continuum\ContinuumServiceProvider::class
+]
+
+'aliases' => [
+    ...
+    'Continuum' => Loopy\Continuum\Facades\ContinuumFacade::class
+]
+
+
+```
+
+## Use
 
 convertToDayName : string
 Pass in a day number and get the day name.
