@@ -12,19 +12,18 @@ class BankHolidayProvider
     public function __construct(string $year, int $number_of_years = 1)
     {
         $this->year = $year;
-        $this->bank_holidays = $this->getBankHolidays(false);
+        $this->setBankHolidays();
         $this->addExtraYears($number_of_years);
     }
 
-    public function isBankHoliday($date) : bool
+    public function isBankHoliday(Carbon $date) : bool
     {
-        if ($date instanceof Carbon) {
-            $date = $date->format('Y-m-d');
-        }
-        return in_array($date, $this->bank_holidays);
+        return $this->bank_holidays->filter(function ($item) use ($date) {
+            return $item->format('Y-m-d') == $date->format('Y-m-d');
+        })->count() > 0;
     }
 
-    public function getBankHolidays(bool $carbon = true)
+    public function setBankHolidays()
     {
         $bank_holidays = ['25th Dec', '26 Dec'];
 
@@ -33,12 +32,21 @@ class BankHolidayProvider
         }
         $dates = array_merge($dates, [$this->getNewYearsDay()]);
         $dates = array_merge($dates, $this->getMayBankHolidays());
-        $dates = array_merge($dates, $this->getAugustBankHoliday());
+        $dates = array_merge($dates, [$this->getAugustBankHoliday()]);
         $dates = array_merge($dates, $this->getEasterBankHolidays());
+        $this->bank_holidays = collect($dates);
+    }
+
+    public function getBankHolidays(bool $carbon = true)
+    {
         if ($carbon) {
-            return collect($dates);
+            return $this->bank_holidays;
         }
-        return $this->convertToDates($dates);
+        $dates_array = [];
+        foreach ($this->bank_holidays as $date) {
+            $dates_array[] = $date->format('Y-m-d');
+        }
+        return $dates_array;
     }
 
     public function getNewYearsDay() : Carbon
@@ -53,10 +61,9 @@ class BankHolidayProvider
         return $dates;
     }
 
-    public function getAugustBankHoliday() : array
+    public function getAugustBankHoliday() : Carbon
     {
-        $dates[] = Carbon::parse('last monday of august ' . $this->year);
-        return $dates;
+        return Carbon::parse('last monday of august ' . $this->year);
     }
 
     public function getEasterBankHolidays() : array
@@ -81,22 +88,13 @@ class BankHolidayProvider
         return Carbon::createFromFormat('Y-m-d', date("Y-m-d", easter_date($this->year)));
     }
 
-    private function convertToDates(array $dates) : array
-    {
-        $dates_array = [];
-        foreach ($dates as $date) {
-            $dates_array[] = $date->format('Y-m-d');
-        }
-        return $dates_array;
-    }
-
     private function addExtraYears(int $number_of_years)
     {
         while ($number_of_years > 1) {
             $number_of_years --;
 
             $next_year =   new self($this->year +1, $number_of_years);
-            $this->bank_holidays = array_merge($this->bank_holidays, $next_year->getBankHolidays(false));
+            $this->bank_holidays = $this->bank_holidays->merge($next_year->getBankHolidays());
         }
     }
 }
