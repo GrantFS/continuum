@@ -8,7 +8,6 @@ class BankHolidayProvider
 {
     protected $year;
     protected $bank_holidays;
-    protected $next_year;
 
     public function __construct(string $year, int $number_of_years = 1)
     {
