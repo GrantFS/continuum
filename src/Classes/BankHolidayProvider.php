@@ -3,9 +3,10 @@
 namespace Loopy\Continuum\Classes;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
+use JsonSerializable;
 
-class BankHolidayProvider
+class BankHolidayProvider implements JsonSerializable
 {
     protected $year;
     protected $bank_holidays;
@@ -66,6 +67,22 @@ class BankHolidayProvider
     public function getEasterSaturday() : Carbon
     {
         return Carbon::createFromFormat('Y-m-d', date("Y-m-d", easter_date($this->year)));
+    }
+
+    public function toArray() : array
+    {
+        $bank_holidays = $this->bank_holidays->map(function ($item) {
+            return $item->format('Y-m-d');
+        })->toArray();
+        return [
+            'year' => $this->year,
+            'bank_holidays' => $bank_holidays
+        ];
+    }
+
+    public function jsonSerialize() : array
+    {
+        return $this->toArray();
     }
 
     private function setBankHolidays()
