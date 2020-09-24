@@ -3,6 +3,7 @@
 namespace Loopy\Continuum\Classes;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 class BankHolidayProvider
 {
@@ -23,30 +24,9 @@ class BankHolidayProvider
         })->count() > 0;
     }
 
-    public function setBankHolidays()
+    public function getBankHolidays() : Collection
     {
-        $bank_holidays = ['25th Dec', '26 Dec'];
-
-        foreach ($bank_holidays as $bank_holiday) {
-            $dates[] = Carbon::parse($bank_holiday . ' ' . $this->year);
-        }
-        $dates = array_merge($dates, [$this->getNewYearsDay()]);
-        $dates = array_merge($dates, $this->getMayBankHolidays());
-        $dates = array_merge($dates, [$this->getAugustBankHoliday()]);
-        $dates = array_merge($dates, $this->getEasterBankHolidays());
-        $this->bank_holidays = collect($dates);
-    }
-
-    public function getBankHolidays(bool $carbon = true)
-    {
-        if ($carbon) {
-            return $this->bank_holidays;
-        }
-        $dates_array = [];
-        foreach ($this->bank_holidays as $date) {
-            $dates_array[] = $date->format('Y-m-d');
-        }
-        return $dates_array;
+        return $this->bank_holidays;
     }
 
     public function getNewYearsDay() : Carbon
@@ -86,6 +66,20 @@ class BankHolidayProvider
     public function getEasterSaturday() : Carbon
     {
         return Carbon::createFromFormat('Y-m-d', date("Y-m-d", easter_date($this->year)));
+    }
+
+    private function setBankHolidays()
+    {
+        $bank_holidays = ['25th Dec', '26 Dec'];
+
+        foreach ($bank_holidays as $bank_holiday) {
+            $dates[] = Carbon::parse($bank_holiday . ' ' . $this->year);
+        }
+        $dates = array_merge($dates, [$this->getNewYearsDay()]);
+        $dates = array_merge($dates, $this->getMayBankHolidays());
+        $dates = array_merge($dates, $this->getEasterBankHolidays());
+        $dates = array_merge($dates, [$this->getAugustBankHoliday()]);
+        $this->bank_holidays = collect($dates);
     }
 
     private function addExtraYears(int $number_of_years)
