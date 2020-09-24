@@ -10,18 +10,11 @@ class BankHolidayProvider
     protected $bank_holidays;
     protected $next_year;
 
-    public function __construct(string $year, int $no_of_years = 1)
+    public function __construct(string $year, int $number_of_years = 1)
     {
         $this->year = $year;
         $this->bank_holidays = $this->getBankHolidays(false);
-        if ($no_of_years > 1) {
-            while ($no_of_years >1) {
-                $no_of_years --;
-
-                $next_year =   new self($this->year +1, $no_of_years);
-                $this->bank_holidays = array_merge($this->bank_holidays, $next_year->getBankHolidays(false));
-            }
-        }
+        $this->addExtraYears($number_of_years);
     }
 
     public function isBankHoliday($date) : bool
@@ -89,12 +82,22 @@ class BankHolidayProvider
         return Carbon::createFromFormat('Y-m-d', date("Y-m-d", easter_date($this->year)));
     }
 
-    private function convertToDates(array $dates)
+    private function convertToDates(array $dates) : array
     {
         $dates_array = [];
         foreach ($dates as $date) {
             $dates_array[] = $date->format('Y-m-d');
         }
         return $dates_array;
+    }
+
+    private function addExtraYears(int $number_of_years)
+    {
+        while ($number_of_years > 1) {
+            $number_of_years --;
+
+            $next_year =   new self($this->year +1, $number_of_years);
+            $this->bank_holidays = array_merge($this->bank_holidays, $next_year->getBankHolidays(false));
+        }
     }
 }

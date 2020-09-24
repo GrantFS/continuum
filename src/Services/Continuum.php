@@ -4,6 +4,7 @@ namespace Loopy\Continuum\Services;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Loopy\Continuum\Classes\BankHolidayProvider;
 
 class Continuum
 {
@@ -142,5 +143,10 @@ class Continuum
             $month_range[$month->format('m')] = $month->format('F');
         }
         return $month_range;
+    }
+
+    public function getBankHolidayProvider(string $year, int $number_of_years = 1) : BankHolidayProvider
+    {
+        return new BankHolidayProvider($year, $number_of_years);
     }
 }
