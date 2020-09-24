@@ -41,9 +41,9 @@ class Continuum
 
     public function getWeeksFor(Carbon $start_of_month) : \DatePeriod
     {
-        $first_week = Continuum::firstWeekOfMonth($start_of_month);
-        $last_week = Continuum::lastWeekOfMonth($start_of_month);
-        return Continuum::getWeeksBetween($first_week, $last_week);
+        $first_week = $this->firstWeekOfMonth($start_of_month);
+        $last_week = $this->lastWeekOfMonth($start_of_month);
+        return $this->getWeeksBetween($first_week, $last_week);
     }
 
     public function get7DatesFrom(Carbon $start_date) : \DatePeriod
@@ -62,35 +62,22 @@ class Continuum
         return Carbon::parse('Last monday of ' . $start_of_month->format('M Y'))->endOfWeek();
     }
 
-    public function convertMonthSelect(string $month_year = null, bool $first_weekday = false) : Carbon
+    public function convertMonthSelectToDate(string $month_year, bool $first_weekday = false) : Carbon
     {
-        $now = Carbon::now()->startOfMonth();
-        $split = explode('-', $month_year);
-        if (count($split) > 1) {
-            $month = $split[1];
-            $year = $split[0];
-
-            $now->month = $month;
-            $now->year = $year;
-        }
-        if ($first_weekday) {
-            return $now->startOfMonth();
-        }
-        return $now;
+        $now = (Carbon::createFromFormat('Y-m', $month_year))->startOfMonth();
+        return $first_weekday ? $this->firstWeekOfMonth($now) : $now;
     }
 
     public function monthStart(int $month, int $year) : Carbon
     {
-        $string_date = $year . '-' . $month . '-01';
-        $date = \Carbon\Carbon::parse($string_date);
-        return $date->startOfMonth();
+        $string_date = $year . '-' . $month;
+        return (Carbon::createFromFormat('Y-m', $string_date))->startOfMonth();
     }
 
     public function monthEnd(int $month, int $year) : Carbon
     {
         $string_date = $year . '-' . $month . '-01';
-        $date = \Carbon\Carbon::parse($string_date);
-        return $date->endOfMonth();
+        return (Carbon::createFromFormat('Y-m', $string_date))->endOfMonth();
     }
 
     public function getNextDate(string $day_of_month) : Carbon
@@ -112,11 +99,11 @@ class Continuum
         return false;
     }
 
-    public function getDatesBetween($start_date, $end_date) : array
+    public function getDatesBetween(string $start_date, string $end_date) : array
     {
-        $range = Continuum::getDaysBetween(Carbon::parse($start_date), Carbon::parse($end_date));
+        $range = $this->getDaysBetween(Carbon::parse($start_date), Carbon::parse($end_date));
         $data = [];
-        foreach ($range as $day => $date) {
+        foreach ($range as $date) {
             $data[] = $date;
         }
         return $data;
@@ -134,7 +121,7 @@ class Continuum
             $date2->year => ($tax ?  $date2->year . '/' . $date2->copy()->addyear()->year : $date2->year),
         ];
         if ($number_of_years > 3) {
-            $count = 2;
+            $count = 3;
             while ($count < $number_of_years) {
                 $result = $date->copy()->addYears($count)->year;
                 if ($tax) {
@@ -149,7 +136,7 @@ class Continuum
 
     public function getMonths() : array
     {
-        $months = Continuum::getDaysBetween(Carbon::parse('1st January'), Carbon::parse('31st December'));
+        $months = $this->getDaysBetween(Carbon::parse('1st January'), Carbon::parse('31st December'));
         $month_range = [];
         foreach ($months as $month) {
             $month_range[$month->format('m')] = $month->format('F');
