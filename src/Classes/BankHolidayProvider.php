@@ -87,7 +87,7 @@ class BankHolidayProvider
         while ($number_of_years > 1) {
             $number_of_years --;
 
-            $next_year =   new self($this->year +1, $number_of_years);
+            $next_year = new self($this->year +1, $number_of_years);
             $this->bank_holidays = $this->bank_holidays->merge($next_year->getBankHolidays());
         }
     }
