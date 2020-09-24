@@ -29,17 +29,7 @@ class Continuum
         return new \DatePeriod($start, CarbonInterval::week(), $end);
     }
 
-    public function firstWeekOfMonth(Carbon $start_of_month) : Carbon
-    {
-        return Carbon::parse('First monday of ' . $start_of_month->format('M Y'));
-    }
-
-    public function lastWeekOfMonth(Carbon $start_of_month) : Carbon
-    {
-        return Carbon::parse('Last monday of ' . $start_of_month->format('M Y'))->endOfWeek();
-    }
-
-    public function getRange(Carbon $start_date, Carbon $end_date) : \DatePeriod
+    public function getDaysBetween(Carbon $start_date, Carbon $end_date) : \DatePeriod
     {
         return new \DatePeriod($start_date, CarbonInterval::day(), $end_date);
     }
@@ -54,6 +44,22 @@ class Continuum
         $first_week = Continuum::firstWeekOfMonth($start_of_month);
         $last_week = Continuum::lastWeekOfMonth($start_of_month);
         return Continuum::getWeeksBetween($first_week, $last_week);
+    }
+
+    public function get7DatesFrom(Carbon $start_date) : \DatePeriod
+    {
+        $end_date = $start_date->copy()->addDays(7);
+        return new \DatePeriod($start_date, CarbonInterval::days(), $end_date);
+    }
+
+    public function firstWeekOfMonth(Carbon $start_of_month) : Carbon
+    {
+        return Carbon::parse('First monday of ' . $start_of_month->format('M Y'));
+    }
+
+    public function lastWeekOfMonth(Carbon $start_of_month) : Carbon
+    {
+        return Carbon::parse('Last monday of ' . $start_of_month->format('M Y'))->endOfWeek();
     }
 
     public function convertMonthSelect(string $month_year = null, bool $first_weekday = false) : Carbon
@@ -71,6 +77,49 @@ class Continuum
             return $now->startOfMonth();
         }
         return $now;
+    }
+
+    public function monthStart(int $month, int $year) : Carbon
+    {
+        $string_date = $year . '-' . $month . '-01';
+        $date = \Carbon\Carbon::parse($string_date);
+        return $date->startOfMonth();
+    }
+
+    public function monthEnd(int $month, int $year) : Carbon
+    {
+        $string_date = $year . '-' . $month . '-01';
+        $date = \Carbon\Carbon::parse($string_date);
+        return $date->endOfMonth();
+    }
+
+    public function getNextDate(string $day_of_month) : Carbon
+    {
+        $month = Carbon::now()->format('F Y');
+        $due_date = Carbon::parse($day_of_month . ' ' .$month);
+        if ($due_date->lte(Carbon::now())) {
+            $due_date->addMonths(1);
+        }
+
+        return $due_date;
+    }
+
+    public function isDay(int $day_of_week, Carbon $compare_date) : bool
+    {
+        if ($compare_date->dayOfWeek == $day_of_week) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getDatesBetween($start_date, $end_date) : array
+    {
+        $range = Continuum::getDaysBetween(Carbon::parse($start_date), Carbon::parse($end_date));
+        $data = [];
+        foreach ($range as $day => $date) {
+            $data[] = $date;
+        }
+        return $data;
     }
 
     public function getYearSelect(int $number_of_years = 3, $tax = false) : array
@@ -98,77 +147,13 @@ class Continuum
         return $years;
     }
 
-    public function getWeeklyDates($start_date = null) : \DatePeriod
-    {
-        if (is_null($start_date)) {
-            $start_date = Carbon::now()->endOfWeek();
-            $end = Carbon::now()->endOfWeek()->addDays(7);
-        } else {
-            $end = $start_date->copy()->addDays(7);
-        }
-
-        return new \DatePeriod($start_date, CarbonInterval::days(), $end);
-    }
-
     public function getMonths() : array
     {
-        $months = Continuum::getRange(Carbon::parse('1st January'), Carbon::parse('31st December'));
+        $months = Continuum::getDaysBetween(Carbon::parse('1st January'), Carbon::parse('31st December'));
         $month_range = [];
         foreach ($months as $month) {
             $month_range[$month->format('m')] = $month->format('F');
         }
         return $month_range;
-    }
-
-    public function getDueDate(string $date) : string
-    {
-        $month = Carbon::now()->format('F Y');
-        $future = Carbon::parse($date . ' ' .$month);
-        if ($future->lte(Carbon::now())) {
-            $month = Carbon::now()->addMonths(1)->format('F Y');
-        }
-        $return = Carbon::parse($date . ' ' . $month);
-
-        return $return->format('Y-m-d');
-    }
-
-    public function getDaysInWeek($date) : \DatePeriod
-    {
-        if ($date instanceof Carbon) {
-            return new \DatePeriod($date->startOfWeek(), CarbonInterval::week(), $date->endOfWeek());
-        }
-        return new \DatePeriod(Carbon::parse($date)->startOfWeek, CarbonInterval::week(), Carbon::parse($date)->endOfWeek);
-    }
-
-    public function getDatesBetween($start_date, $end_date) : array
-    {
-        $range = Continuum::getRange(Carbon::parse($start_date), Carbon::parse($end_date));
-        $data = [];
-        foreach ($range as $day => $date) {
-            $data[] = $date;
-        }
-        return $data;
-    }
-
-    public function monthStart(int $month, int $year) : Carbon
-    {
-        $string_date = $year . '-' . $month . '-01';
-        $date = \Carbon\Carbon::parse($string_date);
-        return $date->startOfMonth();
-    }
-
-    public function monthEnd(int $month, int $year) : Carbon
-    {
-        $string_date = $year . '-' . $month . '-01';
-        $date = \Carbon\Carbon::parse($string_date);
-        return $date->endOfMonth();
-    }
-
-    public function isDay(int $day_of_week, Carbon $compare_date) : bool
-    {
-        if ($compare_date->dayOfWeek == $day_of_week) {
-            return true;
-        }
-        return false;
     }
 }
