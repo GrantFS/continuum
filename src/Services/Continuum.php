@@ -9,6 +9,11 @@ class Continuum
 {
     const DAYS = [0 =>'Sunday', 1=>'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
 
+    public function convertToMonthName(string $month_number) : string
+    {
+        return date("F", mktime(0, 0, 0, $month_number, 1));
+    }
+
     public function convertToDayName(int $day_number) : string
     {
         return self::DAYS[$day_number];
@@ -46,9 +51,9 @@ class Continuum
 
     public function getWeeksFor(Carbon $start_of_month) : \DatePeriod
     {
-        $first_week = $this->firstWeekOfMonth($start_of_month);
-        $last_week = $this->lastWeekOfMonth($start_of_month);
-        return $this->getWeeksBetween($first_week, $last_week);
+        $first_week = Continuum::firstWeekOfMonth($start_of_month);
+        $last_week = Continuum::lastWeekOfMonth($start_of_month);
+        return Continuum::getWeeksBetween($first_week, $last_week);
     }
 
     public function convertMonthSelect(string $month_year = null, bool $first_weekday = false) : Carbon
@@ -107,7 +112,7 @@ class Continuum
 
     public function getMonths() : array
     {
-        $months = $this->getRange(Carbon::parse('1st January'), Carbon::parse('31st December'));
+        $months = Continuum::getRange(Carbon::parse('1st January'), Carbon::parse('31st December'));
         $month_range = [];
         foreach ($months as $month) {
             $month_range[$month->format('m')] = $month->format('F');
@@ -135,13 +140,35 @@ class Continuum
         return new \DatePeriod(Carbon::parse($date)->startOfWeek, CarbonInterval::week(), Carbon::parse($date)->endOfWeek);
     }
 
-    public function getNextSixMonths() : array
+    public function getDatesBetween($start_date, $end_date) : array
     {
-        // $months = TimeServiceProvider::getMonthsRange();
-        // $month_range = [];
-        // foreach ($months as $month) {
-        //     $month_range[$month->format('m')] = $month->format('F');
-        // }
-        // return $month_range;
+        $range = Continuum::getRange(Carbon::parse($start_date), Carbon::parse($end_date));
+        $data = [];
+        foreach ($range as $day => $date) {
+            $data[] = $date;
+        }
+        return $data;
+    }
+
+    public function monthStart(int $month, int $year) : Carbon
+    {
+        $string_date = $year . '-' . $month . '-01';
+        $date = \Carbon\Carbon::parse($string_date);
+        return $date->startOfMonth();
+    }
+
+    public function monthEnd(int $month, int $year) : Carbon
+    {
+        $string_date = $year . '-' . $month . '-01';
+        $date = \Carbon\Carbon::parse($string_date);
+        return $date->endOfMonth();
+    }
+
+    public function isDay(int $day_of_week, Carbon $compare_date) : bool
+    {
+        if ($compare_date->dayOfWeek == $day_of_week) {
+            return true;
+        }
+        return false;
     }
 }

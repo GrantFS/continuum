@@ -41,6 +41,14 @@ Pass in the string day and return the Y-m-d for the closest in the future.
 getDaysInWeek : DatePeriod
 Pass in a date, returns the range of that week
 
+monthStart : Carbon
+Pass Month and year, returns start of month carbon
+
+monthEnd : Carbon
+Pass Month and year, returns end of month carbon
+
+isDay: bool
+Pass in day of the week and date, returns true/false
 
 
 
