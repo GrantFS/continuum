@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Loopy\Continuum\Classes\BankHolidayProvider;
 use Loopy\Continuum\Classes\CompareTime;
+use Loopy\Continuum\Classes\ConvertTime;
 
 class Continuum
 {
@@ -13,6 +14,16 @@ class Continuum
     {
         $this->compare_time = new CompareTime;
         $this->convert_time = new ConvertTime;
+    }
+
+    public function compare() : CompareTime
+    {
+        return $this->compare_time;
+    }
+
+    public function convert() : ConvertTime
+    {
+        return $this->convert_time;
     }
 
     public function createTime(int $hour, int $min) : Carbon

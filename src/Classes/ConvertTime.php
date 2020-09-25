@@ -2,6 +2,7 @@
 
 namespace Loopy\Continuum\Classes;
 
+use Continuum;
 use Carbon\Carbon;
 
 class ConvertTime
@@ -33,12 +34,12 @@ class ConvertTime
         return Continuum::createTime($hours, $minutes);
     }
 
-    public function getMinute(Carbon $time) : int
+    public function toMinute(Carbon $time) : int
     {
         return $time->format('i');
     }
 
-    public function getHour(Carbon $time) : int
+    public function toHour(Carbon $time) : int
     {
         return $time->format('h');
     }
