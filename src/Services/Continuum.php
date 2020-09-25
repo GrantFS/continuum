@@ -158,6 +158,11 @@ class Continuum
         return $compare->lte(Carbon::now()->subDays($days));
     }
 
+    public function getBankHolidayProvider(string $year, int $number_of_years = 1) : BankHolidayProvider
+    {
+        return new BankHolidayProvider($year, $number_of_years);
+    }
+
     private function getDaysIn(string $time_span) : int
     {
         switch (strtolower($time_span)) {
@@ -173,10 +178,5 @@ class Continuum
             default:
                 return 1;
         }
-    }
-
-    public function getBankHolidayProvider(string $year, int $number_of_years = 1) : BankHolidayProvider
-    {
-        return new BankHolidayProvider($year, $number_of_years);
     }
 }
