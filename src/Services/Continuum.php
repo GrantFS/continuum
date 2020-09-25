@@ -26,6 +26,11 @@ class Continuum
         return $this->convert_time;
     }
 
+    public function getBankHolidayProvider(string $year, int $number_of_years = 1) : BankHolidayProvider
+    {
+        return new BankHolidayProvider($year, $number_of_years);
+    }
+
     public function createTime(int $hour, int $min) : Carbon
     {
         $time = $hour . ":" . $min;
@@ -156,11 +161,6 @@ class Continuum
     {
         $days = $this->getDaysIn($time_span);
         return $compare->lte(Carbon::now()->subDays($days));
-    }
-
-    public function getBankHolidayProvider(string $year, int $number_of_years = 1) : BankHolidayProvider
-    {
-        return new BankHolidayProvider($year, $number_of_years);
     }
 
     private function getDaysIn(string $time_span) : int
