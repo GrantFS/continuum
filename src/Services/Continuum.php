@@ -10,6 +10,9 @@ use Loopy\Continuum\Classes\ConvertTime;
 
 class Continuum
 {
+    protected $compare_time;
+    protected $convert_time;
+
     public function __construct()
     {
         $this->compare_time = new CompareTime;
