@@ -4,6 +4,7 @@ namespace Loopy\Continuum\Services;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Loopy\Continuum\Classes\Academic\AcademicYear;
 use Loopy\Continuum\Classes\BankHolidayProvider;
 use Loopy\Continuum\Classes\CompareTime;
 use Loopy\Continuum\Classes\ConvertTime;
@@ -32,6 +33,11 @@ class Continuum
     public function getBankHolidayProvider(string $year, int $number_of_years = 1) : BankHolidayProvider
     {
         return new BankHolidayProvider($year, $number_of_years);
+    }
+
+    public function academicYear(string $year) : AcademicYear
+    {
+        return new AcademicYear($year);
     }
 
     public function createTime(int $hour, int $min) : Carbon

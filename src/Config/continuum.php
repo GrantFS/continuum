@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'laravel' => '5.*',
+    'closed_bank_holidays' => true,
 ];
