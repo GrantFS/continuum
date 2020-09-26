@@ -19,7 +19,7 @@ class StretchedTerm
         $this->bank_holidays = [];
         $this->start = $start_date;
         $this->end = $end_date;
-        $this->getTermDates();
+        $this->setTermDates();
         $this->day_difference = (int) $this->getTotalTermDayDiff();
         $this->day_count = $this->countDaysInTerm();
     }
@@ -39,12 +39,12 @@ class StretchedTerm
         return collect($this->bank_holidays);
     }
 
-    public function getWeekCount()
+    public function getWeekCount() : int
     {
         return (int) $this->countWeeks();
     }
 
-    public function getWeekCountWithoutHolidays()
+    public function getWeekCountWithoutHolidays() : int
     {
         $count = $this->getWeekCount();
         $days = 0;
@@ -77,12 +77,12 @@ class StretchedTerm
         return $this;
     }
 
-    private function countWeeks()
+    private function countWeeks() : int
     {
         return $this->start->copy()->diffInWeeks($this->end);
     }
 
-    private function countDaysInTerm()
+    private function countDaysInTerm() : int
     {
         return $this->start->copy()->diffInDays($this->end) - count($this->bank_holidays);
     }
@@ -95,7 +95,7 @@ class StretchedTerm
         return $days;
     }
 
-    private function getTermDates()
+    private function setTermDates()
     {
         $date_range = Continuum::compare()->getDaysBetween($this->start, $this->end);
         $holiday_provider = Continuum::getBankHolidayProvider($this->start->year, 2);
