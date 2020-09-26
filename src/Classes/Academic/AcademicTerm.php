@@ -43,20 +43,20 @@ class AcademicTerm implements JsonSerializable
 
     public function getDays() :  Collection
     {
-        return $this->days;
+        return is_array($this->days) ? collect($this->days) : $this->days;
     }
 
     public function getWeeks() :  Collection
     {
-        return $this->weeks;
+        return is_array($this->weeks) ? collect($this->weeks) : $this->weeks;
     }
 
     public function getMonths() :  Collection
     {
-        return $this->months;
+        return is_array($this->months) ? collect($this->months) : $this->months;
     }
 
-    public function getHalfTerm()
+    public function getHalfTerm() : Carbon
     {
         return $this->half_term;
     }
@@ -80,7 +80,7 @@ class AcademicTerm implements JsonSerializable
 
     public function getHalfTermDates() : array
     {
-        $half_term_start = $this->half_term;
+        $half_term_start = $this->getHalfTerm();
         $half_term_end = clone $half_term_start;
         $half_term_end = $half_term_end->addDays(7);
         return Continuum::compare()->getDatesBetween($half_term_start->format('Y-m-d'), $half_term_end->format('Y-m-d'));
@@ -188,7 +188,7 @@ class AcademicTerm implements JsonSerializable
         $this->day_count = $this->countDaysInTerm();
         $this->day_difference = (int) $this->getTotalTermDayDiff();
         $this->week_count = (int) $this->countWeeks();
-        $this->month_count = (empty($this->month_count) ? count($this->months) : $this->month_count);
+        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
         $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
         if ($this->half_term_active) {
             $this->setHalfTerm();
@@ -244,7 +244,7 @@ class AcademicTerm implements JsonSerializable
             'days' => $this->getDays(),
             'weeks' => $this->getWeeks(),
             'months' => $this->getMonths(),
-            'half_term' => $this->getHalfTerm(),
+            'half_term' => $this->half_term,
             'bank_holidays' => $this->getBankHolidays(),
             'half_term_bank_holiday' => $this->half_term_bank_holiday,
             'day_count' => $this->getDayCount(),
@@ -264,10 +264,10 @@ class AcademicTerm implements JsonSerializable
 
     private function setHalfTerm()
     {
-        if ($this->start->month == 4) {
-            $this->half_term = Carbon::parse("last monday of may " . $this->start->format('Y'));
-        } elseif ($this->start->month == 9) {
-            $oct = Carbon::parse("last friday of october " . $this->start->format('Y'));
+        if ($this->getStart()->month == 4) {
+            $this->half_term = Carbon::parse("last monday of may " . $this->getStart()->format('Y'));
+        } elseif ($this->getStart()->month == 9) {
+            $oct = Carbon::parse("last friday of october " . $this->getStart()->format('Y'));
             $this->half_term = $oct->startOfWeek();
         } else {
             $weeks = $this->week_count / 2;
@@ -287,46 +287,46 @@ class AcademicTerm implements JsonSerializable
 
     private function getTotalTermDayDiff() : string
     {
-        $dif_start = $this->start->copy()->diffInDays($this->start->copy()->startOfWeek());
-        $dif_end = $this->end->copy()->diffInDays($this->end->copy()->endOfWeek()) - 2;
+        $dif_start = $this->getStart()->copy()->diffInDays($this->getStart()->copy()->startOfWeek());
+        $dif_end = $this->getEnd()->copy()->diffInDays($this->getEnd()->copy()->endOfWeek()) - 2;
         $days = $dif_end + $dif_start;
         return $days;
     }
 
     private function setWeeks()
     {
-        $weeks = Continuum::compare()->getWeeksBetween($this->start, $this->end);
+        $weeks = Continuum::compare()->getWeeksBetween($this->getStart(), $this->getEnd());
         foreach ($weeks as $week) {
             $this->weeks[] = $week->startOfWeek();
         }
-        $this->weeks = collect($this->weeks);
+        $this->weeks = collect($this->getWeeks());
     }
 
     private function setMonths()
     {
-        $months = Continuum::compare()->getMonthsBetween($this->start, $this->end);
+        $months = Continuum::compare()->getMonthsBetween($this->getStart(), $this->getEnd());
         foreach ($months as $month) {
             $this->months[$month->month] = $month->format('F');
         }
-        $this->months = collect($this->months);
+        $this->months = collect($this->getMonths());
     }
 
     private function countWeeks()
     {
         /* Remove Half Term */
-        return $this->start->copy()->diffInWeeks($this->end) - 1;
+        return $this->getStart()->copy()->diffInWeeks($this->getEnd()) - 1;
     }
 
     private function countDaysInTerm()
     {
-        $weeks = $this->start->copy()->diffInWeeks($this->end);
-        return $this->start->copy()->diffInDays($this->end) - ($weeks * 2); // removes weekends
+        $weeks = $this->getStart()->copy()->diffInWeeks($this->getEnd());
+        return $this->getStart()->copy()->diffInDays($this->getEnd()) - ($weeks * 2); // removes weekends
     }
 
     private function moveHalfTermBankHolidays()
     {
-        $half_term_start = $this->half_term->copy();
-        $half_term_end = $this->half_term->copy()->addDays(6);
+        $half_term_start = $this->getHalfTerm()->copy();
+        $half_term_end = $this->getHalfTerm()->copy()->addDays(6);
         foreach ($this->bank_holidays as $id => $bank_holiday) {
             if ($bank_holiday->gte($half_term_start) && $bank_holiday->lte($half_term_end)) {
                 $this->half_term_bank_holiday[] = $bank_holiday;
@@ -337,7 +337,7 @@ class AcademicTerm implements JsonSerializable
 
     private function removeHalfTermFromDays()
     {
-        foreach ($this->days as $date => $day) {
+        foreach ($this->getDays() as $date => $day) {
             if ($this->half_term->format('Y-m-d') == $date) {
                 unset($this->days[$date]);
             }
@@ -346,7 +346,7 @@ class AcademicTerm implements JsonSerializable
 
     private function removeHalfTermFromWeeks()
     {
-        foreach ($this->weeks as $id => $week) {
+        foreach ($this->getWeeks() as $id => $week) {
             if ($this->half_term->format('Y-m-d') == $week->format('Y-m-d')) {
                 unset($this->weeks[$id]);
             }
@@ -355,8 +355,8 @@ class AcademicTerm implements JsonSerializable
 
     private function setTermDates()
     {
-        $date_range = Continuum::compare()->getDaysBetween($this->start, $this->end);
-        $holiday_provider = Continuum::getBankHolidayProvider($this->start->year, 2);
+        $date_range = Continuum::compare()->getDaysBetween($this->getStart(), $this->getEnd());
+        $holiday_provider = Continuum::getBankHolidayProvider($this->getStart()->year, 2);
 
         foreach ($date_range as $value) {
             if (!$value->isSaturday() && !$value->isSunday()) {
@@ -367,6 +367,6 @@ class AcademicTerm implements JsonSerializable
                 }
             }
         }
-        $this->days = collect($this->days);
+        $this->days = collect($this->getDays());
     }
 }
