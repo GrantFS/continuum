@@ -5,8 +5,9 @@ namespace Loopy\Continuum\Classes\Academic;
 use Continuum;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use JsonSerializable;
 
-class AcademicTerm
+class AcademicTerm implements JsonSerializable
 {
     protected $name;
     protected $start;
@@ -23,7 +24,6 @@ class AcademicTerm
     protected $day_difference;
     protected $human_weeks;
     protected $half_term_active;
-    protected $stretched_end;
     protected $closed_dates;
 
     public function __construct()
@@ -240,6 +240,33 @@ class AcademicTerm
             $this->stretched->setClosedDates($this->closed_dates);
         }
         return $this;
+    }
+
+    public function toArray() : array
+    {
+        return [
+            'name' => $this->name,
+            'start' => $this->start,
+            'end' => $this->end,
+            'days' => $this->days,
+            'weeks' => $this->weeks,
+            'months' => $this->months,
+            'half_term' => $this->half_term,
+            'bank_holidays' => $this->bank_holidays,
+            'half_term_bank_holiday' => $this->half_term_bank_holiday,
+            'day_count' => $this->day_count,
+            'week_count' => $this->week_count,
+            'month_count' => $this->month_count,
+            'day_difference' => $this->day_difference,
+            'human_weeks' => $this->human_weeks,
+            'half_term_active' => $this->half_term_active,
+            'closed_dates' => $this->closed_dates
+        ];
+    }
+
+    public function jsonSerialize() : array
+    {
+        return $this->toArray();
     }
 
     private function setHalfTerm()

@@ -5,8 +5,9 @@ namespace Loopy\Continuum\Classes\Academic;
 use Carbon\Carbon;
 use Continuum;
 use Exception;
+use JsonSerializable;
 
-class AcademicYear
+class AcademicYear implements JsonSerializable
 {
     protected $start_year;
     protected $end_year;
@@ -84,12 +85,18 @@ class AcademicYear
         if (is_null($term_name)) {
             $term_name = $this->getCurrentTerm(true);
         }
-        if (strtolower($term_name) == 'easter' || strtolower($term_name) == 'spring') {
-            $term_name = 'Autumn';
-        } elseif (strToLower($term_name) == 'summer') {
-            $term_name = 'Spring';
-        } elseif (strToLower($term_name) == 'christmas' || strToLower($term_name) == 'autumn') {
-            $term_name = 'Summer';
+        switch (strtolower($term_name)) {
+            case "easter":
+            case "spring":
+                $term_name = 'Autumn';
+                break;
+            case "summer":
+                $term_name = 'Spring';
+                break;
+            case "christmas":
+            case "autumn":
+                $term_name = 'Summer';
+                break;
         }
         return $term_name;
     }
@@ -99,12 +106,18 @@ class AcademicYear
         if (is_null($term_name)) {
             $term_name = $this->getCurrentTerm(true);
         }
-        if (strtolower($term_name) == 'easter' || strtolower($term_name) == 'spring') {
-            $term_name = 'Summer';
-        } elseif (strToLower($term_name) == 'summer') {
-            $term_name = 'Autumn';
-        } elseif (strToLower($term_name) == 'christmas' || strToLower($term_name) == 'autumn') {
-            $term_name = 'Spring';
+        switch (strtolower($term_name)) {
+            case "easter":
+            case "spring":
+                $term_name = 'Summer';
+                break;
+            case "summer":
+                $term_name = 'Autumn';
+                break;
+            case "christmas":
+            case "autumn":
+                $term_name = 'Spring';
+                break;
         }
         return $term_name;
     }
@@ -145,29 +158,29 @@ class AcademicYear
         return $this->$method();
     }
 
-    public function getWeeks()
+    public function countAllTermWeeks() : int
     {
         return $this->weeks;
     }
 
-    public function getAllWeeksForSpring()
+    public function countAllWeeksInSpring() : int
     {
         return $this->getSpringTerm()->getWeekCount() + $this->getEasterHolidays()->getWeekCount();
     }
 
-    public function getAllWeeksForAutumn()
+    public function countAllWeeksInAutumn() : int
     {
         return $this->getAutumnTerm()->getWeekCount() + $this->getChristmasHolidays()->getWeekCount();
     }
 
-    public function getAllWeeksForSummer()
+    public function countAllWeeksInSummer() : int
     {
         return $this->getSummerTerm()->getWeekCount() + $this->getSummerHolidays()->getWeekCount();
     }
 
     /* FUNCTIONS */
 
-    public function getFilteredTerm(string $term) : AcademicTerm
+    public function term(string $term) : AcademicTerm
     {
         switch ($term) {
             case "autumn":
@@ -180,55 +193,23 @@ class AcademicYear
         throw new Exception('Unable to find term.');
     }
 
-    public function getAlCalendarDates() : array
+    public function toArray() : array
     {
-        $data = [];
-        $terms = [
-            $this->getAutumnTerm()->getStretched()->getBankHolidays(),
-            $this->getSpringTerm()->getStretched()->getBankHolidays(),
-            $this->getSummerTerm()->getStretched()->getBankHolidays()
+        return [
+            'start_year' => $this->start_year,
+            'end_year' => $this->end_year,
+            'terms' => $this->terms,
+            'weeks' => $this->weeks,
+            'days' => $this->days,
+            'holidays' => $this->holidays,
+            'over_days' => $this->over_days,
+            'closed_dates' => $this->closed_dates
         ];
-        foreach ($terms as $term) {
-            foreach ($term as $bank_holiday) {
-                $data[] =  $this->getCalendarData($bank_holiday, 'Bank Holiday', '#FF0000');
-            }
-        }
-        $data[] =  $this->getCalendarData($this->getAutumnTerm()->getStart(), 'Autumn Term Start');
-        $data[] =  $this->getCalendarData($this->getAutumnTerm()->getEnd(), 'Autumn Term End');
-        $data[] =  $this->getCalendarData($this->getAutumnTerm()->getStretchedEnd(), 'Stretched Term End', '#0900ff');
-
-        $data[] =  $this->getCalendarData($this->getSpringTerm()->getStart(), 'Spring Term Start');
-        $data[] =  $this->getCalendarData($this->getSpringTerm()->getEnd(), 'Spring Term End');
-        $data[] =  $this->getCalendarData($this->getSpringTerm()->getStretchedEnd(), 'Stretched Term End', '#0900ff');
-
-        $data[] =  $this->getCalendarData($this->getSummerTerm()->getStart(), 'Summer Term Start');
-        $data[] =  $this->getCalendarData($this->getSummerTerm()->getEnd(), 'Summer Term End', '#0a02e0');
-        $data[] =  $this->getCalendarData($this->getSummerTerm()->getStretchedEnd(), 'Stretched Term End', '#0900ff');
-
-        $data[] =  $this->getCalendarData($this->getAutumnTerm()->getHalfTerm(), 'Half Term', '#7999F7', $this->getAutumnTerm()->getHalfTermEnd());
-        $data[] =  $this->getCalendarData($this->getSpringTerm()->getHalfTerm(), 'Half Term', '#7999F7', $this->getSpringTerm()->getHalfTermEnd());
-        $data[] =  $this->getCalendarData($this->getSummerTerm()->getHalfTerm(), 'Half Term', '#7999F7', $this->getSummerTerm()->getHalfTermEnd());
-
-        return $data;
     }
 
-    private function getCalendarData(Carbon $date, string $name, string $color = '#0a02e0', Carbon $end = null)
+    public function jsonSerialize() : array
     {
-        if (empty($end)) {
-            $end = $date;
-        }
-
-        return [
-            'id' => null,
-            'start' => $date->format('Y-m-d'),
-            'end' => $end->format('Y-m-d'),
-            'allDay' => true,
-            'title' => $name,
-            'className' => 'calendar-holiday',
-            'color' => $color,
-            'textColor' => '#fff',
-            'borderColor' => '#000000',
-        ];
+        return $this->toArray();
     }
 
     private function getNonTermTime()
