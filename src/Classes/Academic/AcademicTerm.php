@@ -90,7 +90,7 @@ class AcademicTerm
         $half_term_start = $this->half_term;
         $half_term_end = clone $half_term_start;
         $half_term_end = $half_term_end->addDays(7);
-        return Continuum::getDatesBetween($half_term_start->format('Y-m-d'), $half_term_end->format('Y-m-d'));
+        return Continuum::compare()->getDatesBetween($half_term_start->format('Y-m-d'), $half_term_end->format('Y-m-d'));
     }
 
     public function getBankHolidays() :  \Illuminate\Support\Collection
@@ -275,7 +275,7 @@ class AcademicTerm
 
     private function setWeeks()
     {
-        $weeks = Continuum::getWeeksBetween($this->start, $this->end);
+        $weeks = Continuum::compare()->getWeeksBetween($this->start, $this->end);
         foreach ($weeks as $week) {
             $this->weeks[] = $week->startOfWeek();
         }
@@ -284,7 +284,7 @@ class AcademicTerm
 
     private function setMonths()
     {
-        $months = Continuum::getMonthsBetween($this->start, $this->end);
+        $months = Continuum::compare()->getMonthsBetween($this->start, $this->end);
         foreach ($months as $month) {
             $this->months[$month->month] = $month->format('F');
         }
@@ -335,7 +335,7 @@ class AcademicTerm
 
     private function getTermDates()
     {
-        $date_range = Continuum::getDaysBetween($this->start, $this->end);
+        $date_range = Continuum::compare()->getDaysBetween($this->start, $this->end);
         $holiday_provider = Continuum::getBankHolidayProvider($this->start->year, 2);
 
         foreach ($date_range as $value) {

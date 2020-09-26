@@ -22,6 +22,7 @@ class AcademicYear
 
     public function __construct(int $start_year)
     {
+        $this->closed_dates = collect([]);
         $this->start_year = $start_year;
         $this->end_year = $this->start_year + 1;
         $this->holidays = [];

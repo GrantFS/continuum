@@ -3,6 +3,7 @@
 namespace Loopy\Continuum\Classes\Academic;
 
 use Carbon\Carbon;
+use Continuum;
 use Illuminate\Support\Collection;
 
 class StretchedTerm
@@ -96,7 +97,7 @@ class StretchedTerm
 
     private function getTermDates()
     {
-        $date_range = Continuum::getDaysBetween($this->start, $this->end);
+        $date_range = Continuum::compare()->getDaysBetween($this->start, $this->end);
         $holiday_provider = Continuum::getBankHolidayProvider($this->start->year, 2);
 
         foreach ($date_range as $value) {
