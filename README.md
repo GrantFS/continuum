@@ -89,10 +89,10 @@ returns hours of the time
 
 
 firstWeekOfMonth : Carbon
-Pass in a carbon date and get the first monday of the first week in that month.
+return the first monday of the first week in that month.
 
 lastWeekOfMonth : Carbon
-Pass in a carbon date and get the last monday of the last week in that month.
+return the last monday of the last week in that month.
 
 getMonthsRange : DatePeriod
 Returns 6 months before and after today as a range.

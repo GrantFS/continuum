@@ -58,14 +58,16 @@ class Continuum
         return new \DatePeriod($start_date, CarbonInterval::days(), $end_date);
     }
 
-    public function firstWeekOfMonth(Carbon $start_of_month) : Carbon
+    public function firstWeekOfMonth(Carbon $month = null) : Carbon
     {
-        return Carbon::parse('First monday of ' . $start_of_month->format('M Y'));
+        $month = $month ?? Carbon::now();
+        return Carbon::parse('First monday of ' . $month->format('M Y'));
     }
 
-    public function lastWeekOfMonth(Carbon $start_of_month) : Carbon
+    public function lastWeekOfMonth(Carbon $month = null) : Carbon
     {
-        return Carbon::parse('Last monday of ' . $start_of_month->format('M Y'))->endOfWeek();
+        $month = $month ?? Carbon::now();
+        return Carbon::parse('Last monday of ' . $month->format('M Y'))->endOfWeek();
     }
 
     public function monthStart(int $month, int $year) : Carbon
