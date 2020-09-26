@@ -86,7 +86,16 @@ returns minutes of the time
 toHour($time) : int
 returns hours of the time
 
+## Others
 
+getMonthsRange : DatePeriod
+returns 6 months before and after today as a range.
+
+getWeeksFor : DatePeriod
+Pass in the start of the month, return a range of the weeks in that month.
+
+get7DatesFrom : DatePeriod
+Pass a start date, return the dates in that week
 
 firstWeekOfMonth : Carbon
 return the first monday of the first week in that month.
@@ -94,32 +103,40 @@ return the first monday of the first week in that month.
 lastWeekOfMonth : Carbon
 return the last monday of the last week in that month.
 
-getMonthsRange : DatePeriod
-Returns 6 months before and after today as a range.
+monthStart : Carbon
+return start of month
 
-getWeeksFor : DatePeriod
-Pass in the start of the month, return a range of the weeks in that month.
+monthEnd : Carbon
+return end of month
+
+getNextDate : string
+Pass in the string day, return the Y-m-d for the closest in the future.
+
+isDay: bool
+returns true/false
+
+isOverDue: bool
+returns true/false
+
+getDatesBetween : array
+returns the dates between 2 dates
 
 getYearSelect : array
 Pass in the number of years, returns the years as an array
 
-get7DatesFrom : DatePeriod
-Pass a start date, return the dates in that week
-
 getMonths : array
 Returns an array of month_number => Month Name
 
-getDueDate : string
-Pass in the string day and return the Y-m-d for the closest in the future.
+getTaxYearMonths : array
+returns array of months in tax year
 
-monthStart : Carbon
-Pass Month and year, returns start of month carbon
 
-monthEnd : Carbon
-Pass Month and year, returns end of month carbon
 
-isDay: bool
-Pass in day of the week and date, returns true/false
+
+
+
+
+
 
 
 

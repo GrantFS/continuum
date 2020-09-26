@@ -70,16 +70,16 @@ class Continuum
         return Carbon::parse('Last monday of ' . $month->format('M Y'))->endOfWeek();
     }
 
-    public function monthStart(int $month, int $year) : Carbon
+    public function monthStart(int $month = null, int $year = null) : Carbon
     {
-        $string_date = $year . '-' . $month;
-        return (Carbon::createFromFormat('Y-m', $string_date))->startOfMonth();
+        $date = $year && $month ? Carbon::createFromFormat('Y-m', $year . '-' . $month) : Carbon::now();
+        return $date->startOfMonth();
     }
 
-    public function monthEnd(int $month, int $year) : Carbon
+    public function monthEnd(int $month = null, int $year = null) : Carbon
     {
-        $string_date = $year . '-' . $month . '-01';
-        return (Carbon::createFromFormat('Y-m', $string_date))->endOfMonth();
+        $date = $year && $month ? Carbon::createFromFormat('Y-m', $year . '-' . $month) : Carbon::now();
+        return $date->endOfMonth();
     }
 
     public function getNextDate(string $day_of_month) : Carbon
@@ -99,6 +99,12 @@ class Continuum
             return true;
         }
         return false;
+    }
+
+    public function isOverDue(Carbon $compare, string $time_span = '') : bool
+    {
+        $days = $this->getDaysIn($time_span);
+        return $compare->lte(Carbon::now()->subDays($days));
     }
 
     public function getDatesBetween(string $start_date, string $end_date) : array
@@ -160,12 +166,6 @@ class Continuum
             $month_range[$month->format('n')] = $month->format('n');
         }
         return $month_range;
-    }
-
-    public function isOverDue(Carbon $compare, string $time_span = '') : bool
-    {
-        $days = $this->getDaysIn($time_span);
-        return $compare->lte(Carbon::now()->subDays($days));
     }
 
     private function getDaysIn(string $time_span) : int
