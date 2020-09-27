@@ -6,21 +6,20 @@ use Carbon\Carbon;
 use Continuum;
 use Illuminate\Support\Collection;
 
-class StretchedTerm
+class StretchedTerm extends Term
 {
     protected $start;
     protected $end;
-    protected $bank_holidays;
+    protected $bank_holidays = [];
     protected $days;
     protected $closed_dates;
 
     public function __construct(Carbon $start_date, Carbon $end_date)
     {
-        $this->bank_holidays = [];
         $this->start = $start_date;
         $this->end = $end_date;
         $this->setTermDates();
-        $this->day_difference = (int) $this->getTotalTermDayDiff();
+        $this->day_difference = $this->getTotalTermDayDiff();
         $this->day_count = $this->countDaysInTerm();
     }
 
@@ -39,12 +38,7 @@ class StretchedTerm
         return collect($this->bank_holidays);
     }
 
-    public function getWeekCount() : int
-    {
-        return (int) $this->countWeeks();
-    }
-
-    public function getWeekCountWithoutHolidays() : int
+    public function getWeekCountWithoutHolidays()
     {
         $count = $this->getWeekCount();
         $days = 0;
@@ -77,38 +71,18 @@ class StretchedTerm
         return $this;
     }
 
-    private function countWeeks() : int
+    public function countWeeks()
     {
         return $this->start->copy()->diffInWeeks($this->end);
     }
 
-    private function countDaysInTerm() : int
+    public function countDaysInTerm()
     {
         return $this->start->copy()->diffInDays($this->end) - count($this->bank_holidays);
     }
 
-    private function getTotalTermDayDiff() : string
+    public function setHalfTerm()
     {
-        $dif_start = $this->start->copy()->diffInDays($this->start->copy()->startOfWeek());
-        $dif_end = $this->end->copy()->diffInDays($this->end->copy()->endOfWeek()) - 2;
-        $days = $dif_end + $dif_start;
-        return $days;
-    }
-
-    private function setTermDates()
-    {
-        $date_range = Continuum::compare()->getDaysBetween($this->start, $this->end);
-        $holiday_provider = Continuum::getBankHolidayProvider($this->start->year, 2);
-
-        foreach ($date_range as $value) {
-            if (!$value->isSaturday() && !$value->isSunday()) {
-                if ($holiday_provider->isBankHoliday($value)) {
-                    $this->setBankHoliday($value);
-                } else {
-                    $this->days[$value->format('Y-m-d')] = $value->dayOfWeek;
-                }
-            }
-        }
-        $this->days = collect($this->days);
+        //
     }
 }
