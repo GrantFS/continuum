@@ -14,16 +14,7 @@ class AcademicTerm extends Term implements JsonSerializable
 
     public function __construct(Carbon $start_date, Carbon $end_date)
     {
-        $this->start = $start_date;
-        $this->end = $end_date;
-        $this->setTermDates();
-        $this->setWeeks();
-        $this->setMonths();
-        $this->day_difference = $this->getTotalTermDayDiff();
-        $this->day_count = $this->countDaysInTerm();
-        $this->week_count = $this->countWeeks();
-        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
-        $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
+        parent::__construct($start_date, $end_date);
         $this->setHalfTerm();
     }
 

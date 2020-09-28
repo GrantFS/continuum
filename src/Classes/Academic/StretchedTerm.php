@@ -8,25 +8,6 @@ use JsonSerializable;
 
 class StretchedTerm extends Term implements JsonSerializable
 {
-    protected $start;
-    protected $end;
-    protected $bank_holidays = [];
-    protected $days;
-    protected $closed_dates;
-
-    public function __construct(Carbon $start_date, Carbon $end_date)
-    {
-        $this->start = $start_date;
-        $this->end = $end_date;
-        $this->setTermDates();
-        $this->day_difference = $this->getTotalTermDayDiff();
-        $this->day_count = $this->countDaysInTerm();
-        $this->week_count = $this->countWeeks();
-        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
-        $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
-    }
-
-
     public function getBankHolidays() :  Collection
     {
         return collect($this->bank_holidays);

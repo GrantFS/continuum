@@ -24,6 +24,19 @@ abstract class Term
     protected $closed_dates = [];
     protected $half_term_active = true;
 
+    public function __construct(Carbon $start_date, Carbon $end_date)
+    {
+        $this->setStart($start_date);
+        $this->setEnd($end_date);
+        $this->setTermDates();
+        $this->setWeeks();
+        $this->setMonths();
+        $this->day_difference = $this->getTotalTermDayDiff();
+        $this->day_count = $this->countDaysInTerm();
+        $this->week_count = $this->countWeeks();
+        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
+        $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
+    }
 
     public function getStart() : Carbon
     {
