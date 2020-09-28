@@ -3,10 +3,10 @@
 namespace Loopy\Continuum\Classes\Academic;
 
 use Carbon\Carbon;
-use Continuum;
 use Illuminate\Support\Collection;
+use JsonSerializable;
 
-class StretchedTerm extends Term
+class StretchedTerm extends Term implements JsonSerializable
 {
     protected $start;
     protected $end;
@@ -21,17 +21,11 @@ class StretchedTerm extends Term
         $this->setTermDates();
         $this->day_difference = $this->getTotalTermDayDiff();
         $this->day_count = $this->countDaysInTerm();
+        $this->week_count = $this->countWeeks();
+        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
+        $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
     }
 
-    public function getStart() : Carbon
-    {
-        return $this->start;
-    }
-
-    public function getEnd() : Carbon
-    {
-        return $this->end;
-    }
 
     public function getBankHolidays() :  Collection
     {
@@ -71,18 +65,47 @@ class StretchedTerm extends Term
         return $this;
     }
 
-    public function countWeeks()
+    public function countWeeks() : int
     {
-        return $this->start->copy()->diffInWeeks($this->end);
+        return (int) $this->start->copy()->diffInWeeks($this->end);
     }
 
     public function countDaysInTerm()
     {
-        return $this->start->copy()->diffInDays($this->end) - count($this->bank_holidays);
+        $weeks = $this->getStart()->copy()->diffInWeeks($this->getEnd());
+        $remove_days = ($weeks * 2); // remove weekends
+        if (config('continuum.closed_bank_holidays', true)) {
+            $remove_days += $this->getBankHolidays()->count();
+        }
+        return $this->getStart()->copy()->diffInDays($this->getEnd()) - $remove_days;
     }
 
     public function setHalfTerm()
     {
-        //
+        // do nothing
+    }
+
+    public function toArray() : array
+    {
+        return [
+            'start' => $this->getStart(),
+            'end' => $this->getEnd(),
+            'days' => $this->getDays(),
+            'weeks' => $this->getWeeks(),
+            'months' => $this->getMonths(),
+            'bank_holidays' => $this->getBankHolidays(),
+            'day_count' => $this->getDayCount(),
+            'week_count' => $this->getWeekCount(),
+            'month_count' => $this->getMonthCount(),
+            'day_difference' => $this->getDayDifference(),
+            'human_weeks' => $this->getHumanWeeks(),
+            'half_term_active' => $this->half_term_active,
+            'closed_dates' => $this->getClosedDates()
+        ];
+    }
+
+    public function jsonSerialize() : array
+    {
+        return $this->toArray();
     }
 }

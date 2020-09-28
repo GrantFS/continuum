@@ -103,24 +103,21 @@ abstract class Term
     public function halfTermActive(bool $half_term = true) : Term
     {
         $this->half_term_active = $half_term;
+        if ($half_term) {
+            $this->setHalfTerm();
+        }
         return $this;
     }
 
     public function setStart(Carbon $start) : Term
     {
         $this->start = $start;
-        if (!empty($this->end)) {
-            $this->process();
-        }
         return $this;
     }
 
     public function setEnd(Carbon $end) : Term
     {
         $this->end = $end;
-        if (!empty($this->start)) {
-            $this->process();
-        }
         return $this;
     }
 
@@ -130,7 +127,13 @@ abstract class Term
         return $this;
     }
 
-    private function setWeeks()
+    public function setStretched(StretchedTerm $stretched) : Term
+    {
+        $this->stretched = $stretched;
+        return $this;
+    }
+
+    public function setWeeks()
     {
         $weeks = Continuum::compare()->getWeeksBetween($this->getStart(), $this->getEnd());
         foreach ($weeks as $week) {
@@ -139,29 +142,13 @@ abstract class Term
         $this->weeks = collect($this->getWeeks());
     }
 
-    private function setMonths()
+    public function setMonths()
     {
         $months = Continuum::compare()->getMonthsBetween($this->getStart(), $this->getEnd());
         foreach ($months as $month) {
             $this->months[$month->month] = $month->format('F');
         }
         $this->months = collect($this->getMonths());
-    }
-
-    public function process() : AcademicTerm
-    {
-        $this->setTermDates();
-        $this->setWeeks();
-        $this->setMonths();
-        $this->day_count = $this->countDaysInTerm();
-        $this->day_difference = $this->getTotalTermDayDiff();
-        $this->week_count = (int) $this->countWeeks();
-        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
-        $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
-        if ($this->half_term_active) {
-            $this->setHalfTerm();
-        }
-        return $this;
     }
 
     public function setTermDates()
@@ -193,5 +180,5 @@ abstract class Term
     abstract protected function countDaysInTerm();
     abstract protected function countWeeks();
     abstract protected function setHalfTerm();
+    abstract protected function setClosedDates(array $closed_dates);
 }
-

@@ -121,7 +121,7 @@ class AcademicYear implements JsonSerializable
         }
         return $term_name;
     }
-
+    // ?
     public function getCurrentTerm(bool $name_only = false)
     {
         foreach ($this->terms as $name => $term) {
@@ -178,8 +178,6 @@ class AcademicYear implements JsonSerializable
         return $this->getSummerTerm()->getWeekCount() + $this->getSummerHolidays()->getWeekCount();
     }
 
-    /* FUNCTIONS */
-
     public function term(string $term) : AcademicTerm
     {
         switch ($term) {
@@ -230,12 +228,10 @@ class AcademicYear implements JsonSerializable
 
     private function setChristmasHolidays() : AcademicTerm
     {
-        $term = new AcademicTerm;
+        $term = new AcademicTerm($this->getFirstDayOfChristmasHolidays(), $this->getLastDayOfChristmasHolidays());
 
         $term
         ->halfTermActive(false)
-        ->setStart($this->getFirstDayOfChristmasHolidays())
-        ->setEnd($this->getLastDayOfChristmasHolidays())
         ->setName('Christmas');
 
         return $term;
@@ -243,12 +239,10 @@ class AcademicYear implements JsonSerializable
 
     private function setEasterHolidays() : AcademicTerm
     {
-        $term = new AcademicTerm;
+        $term = new AcademicTerm($this->getFirstDayOfEasterHolidays(), $this->getLastDayOfEasterHolidays());
 
         $term
         ->halfTermActive(false)
-        ->setStart($this->getFirstDayOfEasterHolidays())
-        ->setEnd($this->getLastDayOfEasterHolidays())
         ->setName('Easter');
 
         return $term;
@@ -256,12 +250,9 @@ class AcademicYear implements JsonSerializable
 
     private function setSummerHolidays() : AcademicTerm
     {
-        $term = new AcademicTerm;
-
+        $term = new AcademicTerm($this->getFirstDayOfSummerHolidays(), $this->getLastDayOfSummerHolidays());
         $term
         ->halfTermActive(false)
-        ->setStart($this->getFirstDayOfSummerHolidays())
-        ->setEnd($this->getLastDayOfSummerHolidays())
         ->setName('Summer');
 
         return $term;
@@ -269,12 +260,10 @@ class AcademicYear implements JsonSerializable
 
     private function setAutumnTerm() : AcademicTerm
     {
-        $term = new AcademicTerm;
+        $term = new AcademicTerm($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm());
         $stretched = new StretchedTerm($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfChristmasHolidays());
 
         $term
-        ->setStart($this->getFirstDayOfAutumnTerm())
-        ->setEnd($this->getLastDayOfAutumnTerm())
         ->setName('Autumn')
         ->setStretched($stretched)
         ->setClosedDates($this->getClosedDates($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm()));
@@ -284,12 +273,10 @@ class AcademicYear implements JsonSerializable
 
     private function setSpringTerm() : AcademicTerm
     {
-        $term = new AcademicTerm;
+        $term = new AcademicTerm($this->getFirstDayOfSpringTerm(), $this->getLastDayOfSpringTerm());
         $stretched = new StretchedTerm($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays());
 
         $term
-        ->setStart($this->getFirstDayOfSpringTerm())
-        ->setEnd($this->getLastDayOfSpringTerm())
         ->setName('Spring')
         ->setStretched($stretched)
         ->setClosedDates($this->getClosedDates($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays()));
@@ -299,13 +286,11 @@ class AcademicYear implements JsonSerializable
 
     private function setSummerTerm() : AcademicTerm
     {
-        $term = new AcademicTerm;
+        $term = new AcademicTerm($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerTerm());
         $stretched = new StretchedTerm($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerHolidays());
 
         $term
         ->setMonthCount(5)
-        ->setStart($this->getFirstDayOfSummerTerm())
-        ->setEnd($this->getLastDayOfSummerTerm())
         ->setName('Summer')
         ->setStretched($stretched)
         ->setClosedDates($this->getClosedDates($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerHolidays()));

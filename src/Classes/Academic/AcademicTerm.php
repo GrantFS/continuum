@@ -5,6 +5,7 @@ namespace Loopy\Continuum\Classes\Academic;
 use Continuum;
 use Carbon\Carbon;
 use JsonSerializable;
+use \Illuminate\Support\Collection;
 
 class AcademicTerm extends Term implements JsonSerializable
 {
@@ -16,8 +17,19 @@ class AcademicTerm extends Term implements JsonSerializable
         $this->start = $start_date;
         $this->end = $end_date;
         $this->setTermDates();
+        $this->setWeeks();
+        $this->setMonths();
         $this->day_difference = $this->getTotalTermDayDiff();
         $this->day_count = $this->countDaysInTerm();
+        $this->week_count = $this->countWeeks();
+        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
+        $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
+        $this->setHalfTerm();
+    }
+
+    public function getHalfTermBankHolidays() : Collection
+    {
+        return collect($this->half_term_bank_holiday);
     }
 
     public function getHalfTerm() : Carbon
@@ -69,13 +81,6 @@ class AcademicTerm extends Term implements JsonSerializable
         return ceil($count);
     }
 
-    public function setStretched(StretchedTerm $stretched) : AcademicTerm
-    {
-        $this->stretched = $stretched;
-
-        return $this;
-    }
-
     public function setBankHoliday(Carbon $bank_holiday) : AcademicTerm
     {
         $this->bank_holidays = array_merge($this->bank_holidays, [$bank_holiday]);
@@ -120,7 +125,8 @@ class AcademicTerm extends Term implements JsonSerializable
             'day_difference' => $this->getDayDifference(),
             'human_weeks' => $this->getHumanWeeks(),
             'half_term_active' => $this->half_term_active,
-            'closed_dates' => $this->getClosedDates()
+            'closed_dates' => $this->getClosedDates(),
+            'stretched' => $this->getStretched()
         ];
     }
 
@@ -152,16 +158,21 @@ class AcademicTerm extends Term implements JsonSerializable
         $this->moveHalfTermBankHolidays();
     }
 
-    public function countWeeks()
+    public function countWeeks() : int
     {
         /* Remove Half Term */
-        return $this->getStart()->copy()->diffInWeeks($this->getEnd()) - 1;
+        return (int) $this->getStart()->copy()->diffInWeeks($this->getEnd()) - 1;
     }
 
     public function countDaysInTerm()
     {
         $weeks = $this->getStart()->copy()->diffInWeeks($this->getEnd());
-        return $this->getStart()->copy()->diffInDays($this->getEnd()) - ($weeks * 2); // removes weekends
+        $remove_days = ($weeks * 2); // remove weekends
+        $remove_days += 5; // remove half term
+        if (config('continuum.closed_bank_holidays', true)) {
+            $remove_days += $this->getBankHolidays()->count();
+        }
+        return $this->getStart()->copy()->diffInDays($this->getEnd()) - $remove_days;
     }
 
     private function moveHalfTermBankHolidays()
