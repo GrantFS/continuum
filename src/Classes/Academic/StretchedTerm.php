@@ -2,17 +2,8 @@
 
 namespace Loopy\Continuum\Classes\Academic;
 
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use JsonSerializable;
-
-class StretchedTerm extends Term implements JsonSerializable
+class StretchedTerm extends Term
 {
-    public function getBankHolidays() :  Collection
-    {
-        return collect($this->bank_holidays);
-    }
-
     public function getWeekCountWithoutHolidays()
     {
         $count = $this->getWeekCount();
@@ -31,13 +22,6 @@ class StretchedTerm extends Term implements JsonSerializable
         $count = $count - ($days / 7);
 
         return ceil($count);
-    }
-
-    public function setBankHoliday(Carbon $bank_holiday) : StretchedTerm
-    {
-        $this->bank_holidays = array_merge($this->bank_holidays, [$bank_holiday]);
-        $this->bank_holidays = $this->bank_holidays;
-        return $this;
     }
 
     public function setClosedDates(array $closed_dates) : StretchedTerm
@@ -64,29 +48,5 @@ class StretchedTerm extends Term implements JsonSerializable
     public function setHalfTerm()
     {
         // do nothing
-    }
-
-    public function toArray() : array
-    {
-        return [
-            'start' => $this->getStart(),
-            'end' => $this->getEnd(),
-            'days' => $this->getDays(),
-            'weeks' => $this->getWeeks(),
-            'months' => $this->getMonths(),
-            'bank_holidays' => $this->getBankHolidays(),
-            'day_count' => $this->getDayCount(),
-            'week_count' => $this->getWeekCount(),
-            'month_count' => $this->getMonthCount(),
-            'day_difference' => $this->getDayDifference(),
-            'human_weeks' => $this->getHumanWeeks(),
-            'half_term_active' => $this->half_term_active,
-            'closed_dates' => $this->getClosedDates()
-        ];
-    }
-
-    public function jsonSerialize() : array
-    {
-        return $this->toArray();
     }
 }

@@ -4,10 +4,9 @@ namespace Loopy\Continuum\Classes\Academic;
 
 use Continuum;
 use Carbon\Carbon;
-use JsonSerializable;
 use \Illuminate\Support\Collection;
 
-class AcademicTerm extends Term implements JsonSerializable
+class AcademicTerm extends Term
 {
     protected $half_term;
     protected $half_term_bank_holiday;
@@ -72,13 +71,6 @@ class AcademicTerm extends Term implements JsonSerializable
         return ceil($count);
     }
 
-    public function setBankHoliday(Carbon $bank_holiday) : AcademicTerm
-    {
-        $this->bank_holidays = array_merge($this->bank_holidays, [$bank_holiday]);
-        $this->bank_holidays = $this->bank_holidays;
-        return $this;
-    }
-
     public function setMonthCount(int $count) : AcademicTerm
     {
         $this->month_count = $count;
@@ -96,34 +88,6 @@ class AcademicTerm extends Term implements JsonSerializable
             $this->stretched->setClosedDates($this->closed_dates);
         }
         return $this;
-    }
-
-    public function toArray() : array
-    {
-        return [
-            'name' => $this->getName(),
-            'start' => $this->getStart(),
-            'end' => $this->getEnd(),
-            'days' => $this->getDays(),
-            'weeks' => $this->getWeeks(),
-            'months' => $this->getMonths(),
-            'half_term' => $this->half_term,
-            'bank_holidays' => $this->getBankHolidays(),
-            'half_term_bank_holiday' => $this->half_term_bank_holiday,
-            'day_count' => $this->getDayCount(),
-            'week_count' => $this->getWeekCount(),
-            'month_count' => $this->getMonthCount(),
-            'day_difference' => $this->getDayDifference(),
-            'human_weeks' => $this->getHumanWeeks(),
-            'half_term_active' => $this->half_term_active,
-            'closed_dates' => $this->getClosedDates(),
-            'stretched' => $this->getStretched()
-        ];
-    }
-
-    public function jsonSerialize() : array
-    {
-        return $this->toArray();
     }
 
     public function setHalfTerm()

@@ -5,18 +5,19 @@ namespace Loopy\Continuum\Classes\Academic;
 use Continuum;
 use Carbon\Carbon;
 use \Illuminate\Support\Collection;
+use JsonSerializable;
 
-abstract class Term
+abstract class Term implements JsonSerializable
 {
     protected $start;
     protected $end;
-    protected $name;
     protected $stretched;
     protected $days;
     protected $day_count = 0;
     protected $week_count = 0;
     protected $month_count = 0;
     protected $day_difference = 0;
+    protected $name= '';
     protected $human_weeks = '';
     protected $months = [];
     protected $weeks = [];
@@ -146,6 +147,13 @@ abstract class Term
         return $this;
     }
 
+    public function setBankHoliday(Carbon $bank_holiday) : Term
+    {
+        $this->bank_holidays = array_merge($this->bank_holidays, [$bank_holiday]);
+        $this->bank_holidays = $this->bank_holidays;
+        return $this;
+    }
+
     public function setWeeks()
     {
         $weeks = Continuum::compare()->getWeeksBetween($this->getStart(), $this->getEnd());
@@ -189,7 +197,39 @@ abstract class Term
         return (int) $days;
     }
 
-    abstract protected function setBankHoliday(Carbon $bank_holiday);
+    public function toArray() : array
+    {
+        $result = [];
+        if (!empty($this->half_term)) {
+            $result = [
+                'half_term' => $this->half_term,
+                'half_term_bank_holiday' => $this->half_term_bank_holiday,
+            ];
+        }
+        return array_merge($result, [
+            'name' => $this->getName(),
+            'start' => $this->getStart(),
+            'end' => $this->getEnd(),
+            'days' => $this->getDays(),
+            'weeks' => $this->getWeeks(),
+            'months' => $this->getMonths(),
+            'bank_holidays' => $this->getBankHolidays(),
+            'day_count' => $this->getDayCount(),
+            'week_count' => $this->getWeekCount(),
+            'month_count' => $this->getMonthCount(),
+            'day_difference' => $this->getDayDifference(),
+            'human_weeks' => $this->getHumanWeeks(),
+            'half_term_active' => $this->half_term_active,
+            'closed_dates' => $this->getClosedDates(),
+            'stretched' => $this->getStretched()
+        ]);
+    }
+
+    public function jsonSerialize() : array
+    {
+        return $this->toArray();
+    }
+
     abstract protected function countDaysInTerm();
     abstract protected function countWeeks();
     abstract protected function setHalfTerm();
