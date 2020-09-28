@@ -24,12 +24,6 @@ class StretchedTerm extends Term
         return ceil($count);
     }
 
-    public function setClosedDates(array $closed_dates) : StretchedTerm
-    {
-        $this->closed_dates = $closed_dates;
-        return $this;
-    }
-
     public function countWeeks() : int
     {
         return (int) $this->start->copy()->diffInWeeks($this->end);

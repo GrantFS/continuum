@@ -154,6 +154,19 @@ abstract class Term implements JsonSerializable
         return $this;
     }
 
+    public function setClosedDates(array $closed_dates) : Term
+    {
+        $this->closed_dates = [];
+
+        foreach ($closed_dates as $date) {
+            $this->closed_dates[] = Carbon::createFromFormat('Y-m-d', $date);
+        }
+        if (!empty($this->stretched)) {
+            $this->stretched->setClosedDates($this->closed_dates);
+        }
+        return $this;
+    }
+
     public function setWeeks()
     {
         $weeks = Continuum::compare()->getWeeksBetween($this->getStart(), $this->getEnd());
@@ -233,5 +246,4 @@ abstract class Term implements JsonSerializable
     abstract protected function countDaysInTerm();
     abstract protected function countWeeks();
     abstract protected function setHalfTerm();
-    abstract protected function setClosedDates(array $closed_dates);
 }

@@ -77,19 +77,6 @@ class AcademicTerm extends Term
         return $this;
     }
 
-    public function setClosedDates(array $closed_dates) : AcademicTerm
-    {
-        $this->closed_dates = [];
-
-        foreach ($closed_dates as $date) {
-            $this->closed_dates[] = Carbon::createFromFormat('Y-m-d', $date);
-        }
-        if (!empty($this->stretched)) {
-            $this->stretched->setClosedDates($this->closed_dates);
-        }
-        return $this;
-    }
-
     public function setHalfTerm()
     {
         if ($this->getStart()->month == 4) {
