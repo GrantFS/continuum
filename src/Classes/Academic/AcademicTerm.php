@@ -17,6 +17,46 @@ class AcademicTerm extends Term
         $this->setHalfTerm();
     }
 
+    public function countDaysInTerm()
+    {
+        $weeks = $this->getStart()->copy()->diffInWeeks($this->getEnd());
+        $remove_days = ($weeks * 2); // remove weekends
+        $remove_days += 5; // remove half term
+        if (config('continuum.closed_bank_holidays', true)) {
+            $remove_days += $this->getBankHolidays()->count();
+        }
+        return $this->getStart()->copy()->diffInDays($this->getEnd()) - $remove_days;
+    }
+
+    public function countWeeks() : int
+    {
+        /* Remove Half Term */
+        return (int) $this->getStart()->copy()->diffInWeeks($this->getEnd()) - 1;
+    }
+
+    public function setHalfTerm()
+    {
+        if ($this->getStart()->month == 4) {
+            $this->half_term = Carbon::parse("last monday of may " . $this->getStart()->format('Y'));
+        } elseif ($this->getStart()->month == 9) {
+            $oct = Carbon::parse("last friday of october " . $this->getStart()->format('Y'));
+            $this->half_term = $oct->startOfWeek();
+        } else {
+            $weeks = $this->week_count / 2;
+            $weeks = number_format(round($weeks, 0, PHP_ROUND_HALF_UP), 0);
+
+            $this->half_term = $this->weeks[$weeks];
+            if ($weeks % 2 == 0) {
+                $this->half_term = $this->weeks[$weeks];
+            } else {
+                $this->half_term = $this->weeks[$weeks - 1];
+            }
+        }
+        $this->removeHalfTermFromDays();
+        $this->removeHalfTermFromWeeks();
+        $this->moveHalfTermBankHolidays();
+    }
+
     public function getHalfTermBankHolidays() : Collection
     {
         return collect($this->half_term_bank_holiday);
@@ -69,52 +109,6 @@ class AcademicTerm extends Term
         }
         $count = $count - ($days / 5);
         return ceil($count);
-    }
-
-    public function setMonthCount(int $count) : AcademicTerm
-    {
-        $this->month_count = $count;
-        return $this;
-    }
-
-    public function setHalfTerm()
-    {
-        if ($this->getStart()->month == 4) {
-            $this->half_term = Carbon::parse("last monday of may " . $this->getStart()->format('Y'));
-        } elseif ($this->getStart()->month == 9) {
-            $oct = Carbon::parse("last friday of october " . $this->getStart()->format('Y'));
-            $this->half_term = $oct->startOfWeek();
-        } else {
-            $weeks = $this->week_count / 2;
-            $weeks = number_format(round($weeks, 0, PHP_ROUND_HALF_UP), 0);
-
-            $this->half_term = $this->weeks[$weeks];
-            if ($weeks % 2 == 0) {
-                $this->half_term = $this->weeks[$weeks];
-            } else {
-                $this->half_term = $this->weeks[$weeks - 1];
-            }
-        }
-        $this->removeHalfTermFromDays();
-        $this->removeHalfTermFromWeeks();
-        $this->moveHalfTermBankHolidays();
-    }
-
-    public function countWeeks() : int
-    {
-        /* Remove Half Term */
-        return (int) $this->getStart()->copy()->diffInWeeks($this->getEnd()) - 1;
-    }
-
-    public function countDaysInTerm()
-    {
-        $weeks = $this->getStart()->copy()->diffInWeeks($this->getEnd());
-        $remove_days = ($weeks * 2); // remove weekends
-        $remove_days += 5; // remove half term
-        if (config('continuum.closed_bank_holidays', true)) {
-            $remove_days += $this->getBankHolidays()->count();
-        }
-        return $this->getStart()->copy()->diffInDays($this->getEnd()) - $remove_days;
     }
 
     private function moveHalfTermBankHolidays()

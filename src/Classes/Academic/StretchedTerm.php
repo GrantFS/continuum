@@ -4,6 +4,25 @@ namespace Loopy\Continuum\Classes\Academic;
 
 class StretchedTerm extends Term
 {
+    public function countDaysInTerm()
+    {
+        $weeks = $this->getStart()->copy()->diffInWeeks($this->getEnd());
+        $remove_days = ($weeks * 2); // remove weekends
+        if (config('continuum.closed_bank_holidays', true)) {
+            $remove_days += $this->getBankHolidays()->count();
+        }
+        return $this->getStart()->copy()->diffInDays($this->getEnd()) - $remove_days;
+    }
+
+    public function countWeeks() : int
+    {
+        return (int) $this->start->copy()->diffInWeeks($this->end);
+    }
+
+    public function setHalfTerm()
+    {
+    }
+
     public function getWeekCountWithoutHolidays()
     {
         $count = $this->getWeekCount();
@@ -22,25 +41,5 @@ class StretchedTerm extends Term
         $count = $count - ($days / 7);
 
         return ceil($count);
-    }
-
-    public function countWeeks() : int
-    {
-        return (int) $this->start->copy()->diffInWeeks($this->end);
-    }
-
-    public function countDaysInTerm()
-    {
-        $weeks = $this->getStart()->copy()->diffInWeeks($this->getEnd());
-        $remove_days = ($weeks * 2); // remove weekends
-        if (config('continuum.closed_bank_holidays', true)) {
-            $remove_days += $this->getBankHolidays()->count();
-        }
-        return $this->getStart()->copy()->diffInDays($this->getEnd()) - $remove_days;
-    }
-
-    public function setHalfTerm()
-    {
-        // do nothing
     }
 }

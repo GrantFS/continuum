@@ -35,7 +35,7 @@ abstract class Term implements JsonSerializable
         $this->day_difference = $this->getTotalTermDayDiff();
         $this->day_count = $this->countDaysInTerm();
         $this->week_count = $this->countWeeks();
-        $this->month_count = (empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
+        $this->setMonthCount(empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
         $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
     }
 
@@ -138,6 +138,12 @@ abstract class Term implements JsonSerializable
     public function setName(string $name) : Term
     {
         $this->name = $name;
+        return $this;
+    }
+
+    public function setMonthCount(int $count) : Term
+    {
+        $this->month_count = $count;
         return $this;
     }
 
