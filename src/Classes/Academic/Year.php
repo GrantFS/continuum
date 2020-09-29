@@ -3,6 +3,7 @@
 namespace Loopy\Continuum\Classes\Academic;
 
 use Carbon\Carbon;
+use \Illuminate\Support\Collection;
 use JsonSerializable;
 
 abstract class Year extends AcademicDates implements JsonSerializable
@@ -38,6 +39,16 @@ abstract class Year extends AcademicDates implements JsonSerializable
         return $this->end_year;
     }
 
+    public function getTerms() : Collection
+    {
+        return collect($this->terms);
+    }
+
+    public function getHolidays() : Collection
+    {
+        return collect($this->holidays);
+    }
+
     public function getAutumnTerm() : Term
     {
         return $this->terms['Autumn'];
@@ -66,33 +77,6 @@ abstract class Year extends AcademicDates implements JsonSerializable
     public function getSummerHolidays() : Term
     {
         return $this->holidays['Summer'];
-    }
-
-    private function setAutumnTerm(Term $term) : Year
-    {
-        $this->terms['Autumn'] = $term;
-        return $this;
-    }
-
-    private function setSummerTerm(Term $term) : Year
-    {
-        $this->terms['Summer'] = $term;
-        return $this;
-    }
-
-    private function setSpringTerm(Term $term) : Year
-    {
-        $this->terms['Spring'] = $term;
-        return $this;
-    }
-
-    public function createAcademicTerms()
-    {
-        $this->setAutumnTerm($this->buildAutumnTerm());
-        $this->setSpringTerm($this->buildSpringTerm());
-        $this->setSummerTerm($this->buildSummerTerm());
-        $this->weeks = $this->terms['Autumn']->getWeekCount() + $this->terms['Spring']->getWeekCount() + $this->terms['Summer']->getWeekCount() - 3;
-        $this->days = $this->terms['Autumn']->getDayCount() + $this->terms['Spring']->getDayCount() + $this->terms['Summer']->getDayCount() - 15;
     }
 
     public function getCurrentTermName() : string
@@ -147,38 +131,33 @@ abstract class Year extends AcademicDates implements JsonSerializable
         }
         return $term_name;
     }
-    // ?
+
     public function getCurrentTerm(bool $name_only = false)
     {
-        foreach ($this->terms as $name => $term) {
-            if (now()->gte($term->getStart()) && now()->lte($term->getEnd())) {
-                if ($name_only) {
-                    return $name;
-                }
-                return $term;
-            }
+        $current_term = $this->getTerms()->filter(function ($item) {
+            return Carbon::now()->gte($item->getStart()) && Carbon::now()->lte($item->getEnd());
+        })->first();
+        if ($current_term) {
+            return $name_only ? $current_term->getName() : $current_term;
         }
-        foreach ($this->holidays as $name => $holiday) {
-            if (now()->gte($holiday->getStart()) && now()->lte($holiday->getEnd())) {
-                if ($name_only) {
-                    return $name;
-                }
-                return $term;
-            }
+
+        $current_holiday = $this->getHolidays()->filter(function ($item) {
+            return Carbon::now()->gte($item->getStart()) && Carbon::now()->lte($item->getEnd());
+        })->first();
+        if ($current_holiday) {
+            return $name_only ? $current_holiday->getName() : $current_holiday;
         }
-        if ($name_only) {
-            return 'Autumn';
-        }
-        return $this->getAutumnTerm();
+
+        return $name_only ? 'Autumn' : $this->getAutumnTerm();
     }
 
-    public function getNextTerm() : AcademicTerm
+    public function getNextTerm() : Term
     {
         $method = 'get' . $this->getNextTermName() . 'Term';
         return $this->$method();
     }
 
-    public function getPreviousTerm(string $term_name = null) : AcademicTerm
+    public function getPreviousTerm(string $term_name = null) : Term
     {
         $method = 'get' . $this->getPreviousTermName($term_name) . 'Term';
         return $this->$method();
@@ -236,6 +215,33 @@ abstract class Year extends AcademicDates implements JsonSerializable
         return $this->toArray();
     }
 
+    private function setAutumnTerm(Term $term) : Year
+    {
+        $this->terms['Autumn'] = $term;
+        return $this;
+    }
+
+    private function setSummerTerm(Term $term) : Year
+    {
+        $this->terms['Summer'] = $term;
+        return $this;
+    }
+
+    private function setSpringTerm(Term $term) : Year
+    {
+        $this->terms['Spring'] = $term;
+        return $this;
+    }
+
+    private function createAcademicTerms()
+    {
+        $this->setAutumnTerm($this->buildAutumnTerm());
+        $this->setSpringTerm($this->buildSpringTerm());
+        $this->setSummerTerm($this->buildSummerTerm());
+        $this->weeks = $this->terms['Autumn']->getWeekCount() + $this->terms['Spring']->getWeekCount() + $this->terms['Summer']->getWeekCount() - 3;
+        $this->days = $this->terms['Autumn']->getDayCount() + $this->terms['Spring']->getDayCount() + $this->terms['Summer']->getDayCount() - 15;
+    }
+
     private function getNonTermTime()
     {
         $this->holidays['Christmas'] = $this->buildChristmasHolidays();
@@ -243,36 +249,25 @@ abstract class Year extends AcademicDates implements JsonSerializable
         $this->holidays['Summer'] = $this->buildSummerHolidays();
     }
 
-    private function buildChristmasHolidays() : AcademicTerm
+    private function buildChristmasHolidays() : Term
     {
-        $term = new AcademicTerm($this->getFirstDayOfChristmasHolidays(), $this->getLastDayOfChristmasHolidays());
-
-        $term
+        return (new AcademicTerm($this->getFirstDayOfChristmasHolidays(), $this->getLastDayOfChristmasHolidays()))
         ->halfTermActive(false)
         ->setName('Christmas');
-
-        return $term;
     }
 
-    private function buildEasterHolidays() : AcademicTerm
+    private function buildEasterHolidays() : Term
     {
-        $term = new AcademicTerm($this->getFirstDayOfEasterHolidays(), $this->getLastDayOfEasterHolidays());
-
-        $term
+        return (new AcademicTerm($this->getFirstDayOfEasterHolidays(), $this->getLastDayOfEasterHolidays()))
         ->halfTermActive(false)
         ->setName('Easter');
-
-        return $term;
     }
 
-    private function buildSummerHolidays() : AcademicTerm
+    private function buildSummerHolidays() : Term
     {
-        $term = new AcademicTerm($this->getFirstDayOfSummerHolidays(), $this->getLastDayOfSummerHolidays());
-        $term
+        return (new AcademicTerm($this->getFirstDayOfSummerHolidays(), $this->getLastDayOfSummerHolidays()))
         ->halfTermActive(false)
         ->setName('Summer');
-
-        return $term;
     }
 
     abstract protected function buildAutumnTerm();
