@@ -17,6 +17,9 @@ class AcademicYear implements JsonSerializable
     protected $holidays;
     protected $over_days;
     protected $closed_dates;
+    protected $stretched_terms;
+    protected $stretched_days;
+    protected $stretched_weeks;
 
     const TOTAL_DAYS = 190;
     const TOTAL_WEEKS = 38;
@@ -28,6 +31,7 @@ class AcademicYear implements JsonSerializable
         $this->end_year = $this->start_year + 1;
         $this->holidays = [];
         $this->createAcademicTerms();
+        $this->createAcademicStretchedTerms();
         $this->getNonTermTime();
         $this->over_days = $this->days - self::TOTAL_DAYS;
     }
@@ -67,6 +71,21 @@ class AcademicYear implements JsonSerializable
     public function getSummerHolidays() : AcademicTerm
     {
         return $this->holidays['Summer'];
+    }
+
+    public function getAutumnStretchedTerm() : StretchedTerm
+    {
+        return $this->stretched_terms['Autumn'];
+    }
+
+    public function getSpringStretchedTerm() : StretchedTerm
+    {
+        return $this->stretched_terms['Spring'];
+    }
+
+    public function getSummerStretchedTerm() : StretchedTerm
+    {
+        return $this->stretched_terms['Summer'];
     }
 
     public function getCurrentTermName() : string
@@ -158,6 +177,18 @@ class AcademicYear implements JsonSerializable
         return $this->$method();
     }
 
+    public function getNextStretchedTerm() : StretchedTerm
+    {
+        $method = 'get' . $this->getNextTermName() . 'StretchedTerm';
+        return $this->$method();
+    }
+
+    public function getPreviousStretchedTerm(string $term_name = null) : StretchedTerm
+    {
+        $method = 'get' . $this->getPreviousTermName($term_name) . 'StretchedTerm';
+        return $this->$method();
+    }
+
     public function countAllTermWeeks() : int
     {
         return $this->weeks;
@@ -197,8 +228,11 @@ class AcademicYear implements JsonSerializable
             'start_year' => $this->start_year,
             'end_year' => $this->end_year,
             'terms' => $this->terms,
-            'weeks' => $this->weeks,
             'days' => $this->days,
+            'weeks' => $this->weeks,
+            'stretched_terms' => $this->stretched_terms,
+            'stretched_days' => $this->stretched_days,
+            'stretched_weeks' => $this->stretched_weeks,
             'holidays' => $this->holidays,
             'over_days' => $this->over_days,
             'closed_dates' => $this->closed_dates
@@ -224,6 +258,15 @@ class AcademicYear implements JsonSerializable
         $this->terms['Summer'] = $this->setSummerTerm();
         $this->weeks = $this->terms['Autumn']->getWeekCount() + $this->terms['Spring']->getWeekCount() + $this->terms['Summer']->getWeekCount() - 3;
         $this->days = $this->terms['Autumn']->getDayCount() + $this->terms['Spring']->getDayCount() + $this->terms['Summer']->getDayCount() - 15;
+    }
+
+    private function createAcademicStretchedTerms()
+    {
+        $this->stretched_terms['Autumn'] = $this->setAutumnStretchedTerm();
+        $this->stretched_terms['Spring'] = $this->setSpringStretchedTerm();
+        $this->stretched_terms['Summer'] = $this->setSummerStretchedTerm();
+        $this->stretched_weeks = $this->stretched_terms['Autumn']->getWeekCount() + $this->stretched_terms['Spring']->getWeekCount() + $this->stretched_terms['Summer']->getWeekCount() - 3;
+        $this->stretched_days = $this->stretched_terms['Autumn']->getDayCount() + $this->stretched_terms['Spring']->getDayCount() + $this->stretched_terms['Summer']->getDayCount() - 15;
     }
 
     private function setChristmasHolidays() : AcademicTerm
@@ -258,44 +301,48 @@ class AcademicYear implements JsonSerializable
         return $term;
     }
 
+    private function setAutumnStretchedTerm() : StretchedTerm
+    {
+        return (new StretchedTerm($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfChristmasHolidays()))
+        ->setClosedDates($this->getClosedDates($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm()))
+        ->setName('Autumn');
+    }
+
+    private function setSpringStretchedTerm() : StretchedTerm
+    {
+        return (new StretchedTerm($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays()))
+        ->setClosedDates($this->getClosedDates($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays()))
+        ->setName('Spring');
+    }
+
+    private function setSummerStretchedTerm() : StretchedTerm
+    {
+        return (new StretchedTerm($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerHolidays()))
+        ->setClosedDates($this->getClosedDates($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerHolidays()))
+        ->setMonthCount(5)
+        ->setName('Summer');
+    }
+
     private function setAutumnTerm() : AcademicTerm
     {
-        $term = new AcademicTerm($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm());
-        $stretched = new StretchedTerm($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfChristmasHolidays());
-
-        $term
-        ->setName('Autumn')
-        ->setStretched($stretched)
-        ->setClosedDates($this->getClosedDates($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm()));
-
-        return $term;
+        return (new AcademicTerm($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm()))
+        ->setClosedDates($this->getClosedDates($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm()))
+        ->setName('Autumn');
     }
 
     private function setSpringTerm() : AcademicTerm
     {
-        $term = new AcademicTerm($this->getFirstDayOfSpringTerm(), $this->getLastDayOfSpringTerm());
-        $stretched = new StretchedTerm($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays());
-
-        $term
-        ->setName('Spring')
-        ->setStretched($stretched)
-        ->setClosedDates($this->getClosedDates($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays()));
-
-        return $term;
+        return (new AcademicTerm($this->getFirstDayOfSpringTerm(), $this->getLastDayOfSpringTerm()))
+        ->setClosedDates($this->getClosedDates($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays()))
+        ->setName('Spring');
     }
 
     private function setSummerTerm() : AcademicTerm
     {
-        $term = new AcademicTerm($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerTerm());
-        $stretched = new StretchedTerm($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerHolidays());
-
-        $term
+        return (new AcademicTerm($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerTerm()))
         ->setMonthCount(5)
         ->setName('Summer')
-        ->setStretched($stretched)
         ->setClosedDates($this->getClosedDates($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerHolidays()));
-
-        return $term;
     }
 
     /* Terms */

@@ -11,13 +11,12 @@ abstract class Term implements JsonSerializable
 {
     protected $start;
     protected $end;
-    protected $stretched;
     protected $days;
     protected $day_count = 0;
     protected $week_count = 0;
     protected $month_count = 0;
     protected $day_difference = 0;
-    protected $name= '';
+    protected $name = '';
     protected $human_weeks = '';
     protected $months = [];
     protected $weeks = [];
@@ -57,16 +56,6 @@ abstract class Term implements JsonSerializable
     public function getHumanWeeks() : string
     {
         return $this->human_weeks;
-    }
-
-    public function getStretched()
-    {
-        return $this->stretched;
-    }
-
-    public function getStretechedEnd() : Carbon
-    {
-        return $this->getStretched()->getEnd();
     }
 
     public function getDays() :  Collection
@@ -147,12 +136,6 @@ abstract class Term implements JsonSerializable
         return $this;
     }
 
-    public function setStretched(StretchedTerm $stretched) : Term
-    {
-        $this->stretched = $stretched;
-        return $this;
-    }
-
     public function setBankHoliday(Carbon $bank_holiday) : Term
     {
         $this->bank_holidays = array_merge($this->bank_holidays, [$bank_holiday]);
@@ -166,9 +149,6 @@ abstract class Term implements JsonSerializable
 
         foreach ($closed_dates as $date) {
             $this->closed_dates[] = Carbon::createFromFormat('Y-m-d', $date);
-        }
-        if (!empty($this->stretched)) {
-            $this->stretched->setClosedDates($this->closed_dates);
         }
         return $this;
     }
@@ -239,8 +219,7 @@ abstract class Term implements JsonSerializable
             'day_difference' => $this->getDayDifference(),
             'human_weeks' => $this->getHumanWeeks(),
             'half_term_active' => $this->half_term_active,
-            'closed_dates' => $this->getClosedDates(),
-            'stretched' => $this->getStretched()
+            'closed_dates' => $this->getClosedDates()
         ]);
     }
 
