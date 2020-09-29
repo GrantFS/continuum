@@ -8,21 +8,21 @@ class AcademicYear extends Year
 {
     protected $closed_dates;
 
-    public function buildAutumnTerm() : AcademicTerm
+    public function buildAutumnTerm() : Term
     {
         return (new AcademicTerm($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm()))
         ->setClosedDates($this->getClosedDates($this->getFirstDayOfAutumnTerm(), $this->getLastDayOfAutumnTerm()))
         ->setName('Autumn');
     }
 
-    public function buildSpringTerm() : AcademicTerm
+    public function buildSpringTerm() : Term
     {
         return (new AcademicTerm($this->getFirstDayOfSpringTerm(), $this->getLastDayOfSpringTerm()))
         ->setClosedDates($this->getClosedDates($this->getFirstDayOfSpringTerm(), $this->getLastDayOfEasterHolidays()))
         ->setName('Spring');
     }
 
-    public function buildSummerTerm() : AcademicTerm
+    public function buildSummerTerm() : Term
     {
         return (new AcademicTerm($this->getFirstDayOfSummerTerm(), $this->getLastDayOfSummerTerm()))
         ->setMonthCount(5)
