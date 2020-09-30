@@ -33,7 +33,7 @@ abstract class Term implements JsonSerializable
         $this->day_count = $this->countDaysInTerm();
         $this->week_count = $this->countWeeks(false);
         $this->setMonthCount(empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
-        $this->human_weeks =  floor($this->day_count / 5) . ' weeks and ' . $this->getTotalTermDayDiff() . ' days';
+        $this->setHumanWeeks();
     }
 
     public function getStart() : Carbon
@@ -216,8 +216,8 @@ abstract class Term implements JsonSerializable
     abstract protected function countWeeks();
     abstract protected function setHalfTerm();
 
-    private function getTotalTermDayDiff() : int
+    private function setHumanWeeks()
     {
-        return (int) $this->day_count % 5;
+        $this->human_weeks = floor($this->day_count / 5) . ' weeks and ' . $this->day_count % 5 . ' days';
     }
 }
