@@ -14,6 +14,7 @@ abstract class Year extends AcademicDates implements JsonSerializable
     protected $over_days;
     protected $weeks;
     protected $days;
+    protected $closed_dates = [];
     protected $holidays = [];
 
     const TOTAL_DAYS = 190;
@@ -199,12 +200,12 @@ abstract class Year extends AcademicDates implements JsonSerializable
     public function toArray() : array
     {
         return [
-            'start_year' => $this->start_year,
-            'end_year' => $this->end_year,
-            'terms' => $this->terms,
+            'start_year' => $this->getStartYear(),
+            'end_year' => $this->getEndYear(),
+            'terms' => $this->getTerms(),
             'days' => $this->days,
             'weeks' => $this->weeks,
-            'holidays' => $this->holidays,
+            'holidays' => $this->getHolidays(),
             'over_days' => $this->over_days,
             'closed_dates' => $this->closed_dates
         ];
