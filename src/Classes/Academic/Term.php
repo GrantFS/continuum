@@ -15,7 +15,6 @@ abstract class Term implements JsonSerializable
     protected $day_count = 0;
     protected $week_count = 0;
     protected $month_count = 0;
-    protected $day_difference = 0;
     protected $name = '';
     protected $human_weeks = '';
     protected $months = [];
@@ -31,11 +30,10 @@ abstract class Term implements JsonSerializable
         $this->setTermDates();
         $this->setWeeks();
         $this->setMonths();
-        $this->day_difference = $this->getTotalTermDayDiff();
         $this->day_count = $this->countDaysInTerm();
-        $this->week_count = $this->countWeeks();
+        $this->week_count = $this->countWeeks(false);
         $this->setMonthCount(empty($this->month_count) ? count($this->getMonths()) : $this->month_count);
-        $this->human_weeks =  $this->week_count . ' weeks and ' . $this->day_difference . ' days';
+        $this->human_weeks =  floor($this->day_count / 5) . ' weeks and ' . $this->getTotalTermDayDiff() . ' days';
     }
 
     public function getStart() : Carbon
@@ -86,11 +84,6 @@ abstract class Term implements JsonSerializable
     public function getMonthCount() : int
     {
         return $this->month_count;
-    }
-
-    public function getDayDifference() : int
-    {
-        return $this->day_difference;
     }
 
     public function getBankHolidays() :  Collection
@@ -188,14 +181,6 @@ abstract class Term implements JsonSerializable
         $this->days = collect($this->getDays());
     }
 
-    public function getTotalTermDayDiff() : int
-    {
-        $dif_start = $this->getStart()->copy()->diffInDays($this->getStart()->copy()->startOfWeek());
-        $dif_end = $this->getEnd()->copy()->diffInDays($this->getEnd()->copy()->endOfWeek()) - 2;
-        $days = $dif_end + $dif_start;
-        return (int) $days;
-    }
-
     public function toArray() : array
     {
         $result = [];
@@ -216,7 +201,6 @@ abstract class Term implements JsonSerializable
             'day_count' => $this->getDayCount(),
             'week_count' => $this->getWeekCount(),
             'month_count' => $this->getMonthCount(),
-            'day_difference' => $this->getDayDifference(),
             'human_weeks' => $this->getHumanWeeks(),
             'half_term_active' => $this->half_term_active,
             'closed_dates' => $this->getClosedDates()
@@ -231,4 +215,9 @@ abstract class Term implements JsonSerializable
     abstract protected function countDaysInTerm();
     abstract protected function countWeeks();
     abstract protected function setHalfTerm();
+
+    private function getTotalTermDayDiff() : int
+    {
+        return (int) $this->day_count % 5;
+    }
 }

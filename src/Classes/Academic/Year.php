@@ -252,22 +252,19 @@ abstract class Year extends AcademicDates implements JsonSerializable
 
     private function buildChristmasHolidays() : Term
     {
-        return (new AcademicTerm($this->getFirstDayOfChristmasHolidays(), $this->getLastDayOfChristmasHolidays()))
-        ->halfTermActive(false)
+        return (new HolidayTerm($this->getFirstDayOfChristmasHolidays(), $this->getLastDayOfChristmasHolidays()))
         ->setName('Christmas');
     }
 
     private function buildEasterHolidays() : Term
     {
-        return (new AcademicTerm($this->getFirstDayOfEasterHolidays(), $this->getLastDayOfEasterHolidays()))
-        ->halfTermActive(false)
+        return (new HolidayTerm($this->getFirstDayOfEasterHolidays(), $this->getLastDayOfEasterHolidays()))
         ->setName('Easter');
     }
 
     private function buildSummerHolidays() : Term
     {
-        return (new AcademicTerm($this->getFirstDayOfSummerHolidays(), $this->getLastDayOfSummerHolidays()))
-        ->halfTermActive(false)
+        return (new HolidayTerm($this->getFirstDayOfSummerHolidays(), $this->getLastDayOfSummerHolidays()))
         ->setName('Summer');
     }
 
