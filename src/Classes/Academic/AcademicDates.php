@@ -44,7 +44,7 @@ class AcademicDates
 
     public function getLastDayOfAutumnTerm() : Carbon
     {
-        return $this->getFirstDayOfSpringTerm()->copy()->startOfWeek()->subWeeks(3)->endOfWeek()->subDays(2);
+        return $this->getFirstDayOfSpringTerm()->copy()->endOfWeek()->subWeeks(3)->subDays(2)->startOfDay();
     }
 
     public function getFirstDayOfSummerHolidays() : Carbon
@@ -54,7 +54,7 @@ class AcademicDates
 
     public function getLastDayOfSummerHolidays() : Carbon
     {
-        return Carbon::parse('first monday of september ' . $this->end_year)->subWeeks(1)->endOfWeek()->subDays(2);
+        return Carbon::parse('first monday of september ' . $this->end_year)->subWeeks(1)->endOfWeek()->subDays(2)->startOfDay();
     }
 
     public function getFirstDayOfEasterHolidays() : Carbon
@@ -64,7 +64,7 @@ class AcademicDates
 
     public function getLastDayOfEasterHolidays() : Carbon
     {
-        return $this->getFirstDayOfSummerTerm()->copy()->subWeeks(1)->endOfWeek()->subDays(2);
+        return $this->getFirstDayOfSummerTerm()->copy()->subWeeks(1)->endOfWeek()->subDays(2)->startOfDay();
     }
 
     public function getFirstDayOfChristmasHolidays() : Carbon
@@ -74,7 +74,7 @@ class AcademicDates
 
     public function getLastDayOfChristmasHolidays() : Carbon
     {
-        return $this->getFirstDayOfSpringTerm()->copy()->subWeeks(1)->endOfWeek()->subDays(2);
+        return $this->getFirstDayOfSpringTerm()->copy()->subWeeks(1)->endOfWeek()->subDays(2)->startOfDay();
     }
 
     public function getFirstDayOfSpringTerm() : Carbon
