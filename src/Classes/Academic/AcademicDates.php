@@ -3,7 +3,7 @@
 namespace Loopy\Continuum\Classes\Academic;
 
 use Carbon\Carbon;
-use Continuum;
+use Loopy\Continuum\Services\Continuum;
 
 class AcademicDates
 {
@@ -79,27 +79,29 @@ class AcademicDates
 
     public function getFirstDayOfSpringTerm() : Carbon
     {
-        $holiday_provider = Continuum::getBankHolidayProvider($this->end_year);
+        $provider = new Continuum;
+        $holiday_provider = $provider->getBankHolidayProvider($this->end_year);
         $new_years_day = $holiday_provider->getNewYearsDay();
 
         if ($new_years_day->isWeekday()) {
             if ($new_years_day->isMonday()) {
-                return $new_years_day->copy()->addDays(1);
+                return $new_years_day->copy()->addDays(1)->startOfDay();
             }
-            return $new_years_day->copy()->addWeek()->startOfWeek();
+            return $new_years_day->copy()->addWeek()->startOfWeek()->startOfDay();
         }
-        return $new_years_day->copy()->addWeek()->startOfWeek()->addDays(1);
+        return $new_years_day->copy()->addWeek()->startOfWeek()->addDays(1)->startOfDay();
     }
 
     public function getLastDayOfSpringTerm() : Carbon
     {
-        $holiday_provider = Continuum::getBankHolidayProvider($this->end_year);
+        $provider = new Continuum;
+        $holiday_provider = $provider->getBankHolidayProvider($this->end_year);
         $easter_mid = Carbon::parse('26th march ' . $this->end_year)->addDays(13);
 
         if ($holiday_provider->getEasterSaturday()->lte($easter_mid)) {
-            return $holiday_provider->getGoodFriday()->copy()->subDays(1);
+            return $holiday_provider->getGoodFriday()->copy()->subDays(1)->startOfDay();
         } else {
-            return $holiday_provider->getEasterSaturday()->copy()->subDay(1)->subWeeks(2);
+            return $holiday_provider->getEasterSaturday()->copy()->subDay(1)->subWeeks(2)->startOfDay();
         }
     }
 }
