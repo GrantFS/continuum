@@ -7,6 +7,16 @@ use Continuum;
 
 class AcademicDates
 {
+    protected $end_year;
+    protected $start_year;
+
+    public function setStartYear(int $start_year) : AcademicDates
+    {
+        $this->start_year = $start_year;
+        $this->end_year = $this->start_year + 1;
+        return $this;
+    }
+
     public function getFirstDayOfSummerTerm() : Carbon
     {
         return $this->getLastDayOfSpringTerm()->copy()->addWeeks(3)->startOfWeek();

@@ -23,8 +23,7 @@ abstract class Year extends AcademicDates implements JsonSerializable
     public function __construct(int $start_year)
     {
         $this->closed_dates = collect([]);
-        $this->start_year = $start_year;
-        $this->end_year = $this->start_year + 1;
+        $this->setStartYear($start_year);
         $this->createAcademicTerms();
         $this->getNonTermTime();
         $this->over_days = $this->days - self::TOTAL_DAYS;
