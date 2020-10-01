@@ -29,16 +29,6 @@ abstract class Year extends AcademicDates implements JsonSerializable
         $this->over_days = $this->days - self::TOTAL_DAYS;
     }
 
-    public function getStartYear() : int
-    {
-        return $this->start_year;
-    }
-
-    public function getEndYear() : int
-    {
-        return $this->end_year;
-    }
-
     public function getTerms() : Collection
     {
         return collect($this->terms);

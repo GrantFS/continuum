@@ -17,6 +17,16 @@ class AcademicDates
         return $this;
     }
 
+    public function getStartYear() : int
+    {
+        return $this->start_year;
+    }
+
+    public function getEndYear() : int
+    {
+        return $this->end_year;
+    }
+
     public function getFirstDayOfSummerTerm() : Carbon
     {
         return $this->getLastDayOfSpringTerm()->copy()->addWeeks(3)->startOfWeek();
