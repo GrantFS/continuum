@@ -40,13 +40,14 @@ In config/app.php
 
 ## Use
 
+### Comparisons
+
 ```
 
 Continuum::compare()
 
 ```
 
-### Comparisons
 
 getMinutesBetween($start_time, $end_time) : int
 returns the difference in minutes
@@ -64,13 +65,14 @@ getMonthsBetween($start_time, $end_time) : DatePeriod
 returns a date period of months between
 
 
+### Conversions
+
 ```
 
 Continuum::convert()
 
 ```
 
-### Conversions
 
 dayNumberToName($day_number) : string
 returns the name of the day of the week
