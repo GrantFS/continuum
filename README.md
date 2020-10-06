@@ -131,12 +131,27 @@ getTaxYearMonths : array
 returns array of months in tax year
 
 
+## Continuum Special Classes
 
+### AcademicYear
 
+> A Academic Year is made up of Academic Terms.
 
+```
+    /* Return All the Terms for 2020 */
+    Continuum::academicYear(2020)->getTerms();
+```
+### StretchedAcademicYear
 
+> A Stretched Year is made up of Streched Terms.  A Stretched Term is a different type of academic term where the holidays are included in the term.
 
+```
+    /* Return All the Stretched Terms for 2020 */
+    Continuum::stretchedAcademicYear(2020)->getTerms();
+```
+### BankHolidays
 
-
-
-
+```
+    /* Return All the Bank Holidays for 2020 */
+    Continuum::bankHolidays(2020)->getBankHolidays();
+```

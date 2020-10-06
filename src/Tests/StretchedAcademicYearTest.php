@@ -23,7 +23,6 @@ class StretchedAcademicYearTest extends TestCase
 
     public function testGetHolidays()
     {
-        # code..
         $holidays = $this->provider->getHolidays();
         $this->assertCount(3, $holidays);
         $this->assertInstanceOf(Term::class, $holidays->first());
