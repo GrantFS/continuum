@@ -11,7 +11,7 @@ class AcademicYearTest extends TestCase
 {
     protected $provider;
     /*
-    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/tests/StretchedAcademicYearTest.php
+    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/src/tests/StretchedAcademicYearTest.php
     */
 
     public function testGetTerms()

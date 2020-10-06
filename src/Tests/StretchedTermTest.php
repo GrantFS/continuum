@@ -11,7 +11,7 @@ class StretchedTermTest extends TestCase
 {
     protected $provider;
     /*
-    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/tests/StretchedTermTest.php
+    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/src/tests/StretchedTermTest.php
     */
     public function testGetDays()
     {

@@ -10,7 +10,7 @@ class AcademicDatesTest extends TestCase
 {
     protected $provider;
     /*
-    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/tests/AcademicDatesTest.php
+    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/src/tests/AcademicDatesTest.php
     */
 
     public function testFirstDayOfSummerTerm()

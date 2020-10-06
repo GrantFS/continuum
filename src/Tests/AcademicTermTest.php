@@ -11,7 +11,7 @@ class AcademicTermTest extends TestCase
 {
     protected $provider;
     /*
-    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/tests/AcademicTermTest.php
+    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/src/tests/AcademicTermTest.php
     */
     public function testGetDays()
     {
