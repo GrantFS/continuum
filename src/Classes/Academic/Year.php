@@ -173,7 +173,7 @@ abstract class Year extends AcademicDates implements JsonSerializable
         return $this->getSummerTerm()->getWeekCount() + $this->getSummerHolidays()->getWeekCount();
     }
 
-    public function term(string $term) : AcademicTerm
+    public function term(string $term) : Term
     {
         switch ($term) {
             case "autumn":

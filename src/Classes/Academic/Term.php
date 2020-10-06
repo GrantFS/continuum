@@ -2,7 +2,7 @@
 
 namespace Loopy\Continuum\Classes\Academic;
 
-use Continuum;
+use Loopy\Continuum\Services\Continuum;
 use Carbon\Carbon;
 use \Illuminate\Support\Collection;
 use JsonSerializable;
@@ -25,8 +25,9 @@ abstract class Term implements JsonSerializable
 
     public function __construct(Carbon $start_date, Carbon $end_date)
     {
-        $this->setStart($start_date);
-        $this->setEnd($end_date);
+        $this->provider = new Continuum;
+        $this->setStart($start_date->startOfDay());
+        $this->setEnd($end_date->endOfDay());
         $this->setTermDates();
         $this->setWeeks();
         $this->setMonths();
@@ -148,7 +149,7 @@ abstract class Term implements JsonSerializable
 
     public function setWeeks()
     {
-        $weeks = Continuum::compare()->getWeeksBetween($this->getStart(), $this->getEnd());
+        $weeks = $this->provider->compare()->getWeeksBetween($this->getStart(), $this->getEnd());
         foreach ($weeks as $week) {
             $this->weeks[] = $week->startOfWeek();
         }
@@ -157,7 +158,7 @@ abstract class Term implements JsonSerializable
 
     public function setMonths()
     {
-        $months = Continuum::compare()->getMonthsBetween($this->getStart(), $this->getEnd());
+        $months = $this->provider->compare()->getMonthsBetween($this->getStart(), $this->getEnd());
         foreach ($months as $month) {
             $this->months[$month->month] = $month->format('F');
         }
@@ -166,8 +167,8 @@ abstract class Term implements JsonSerializable
 
     public function setTermDates()
     {
-        $date_range = Continuum::compare()->getDaysBetween($this->getStart(), $this->getEnd());
-        $holiday_provider = Continuum::getBankHolidayProvider($this->getStart()->year, 2);
+        $date_range = $this->provider->compare()->getDaysBetween($this->getStart(), $this->getEnd());
+        $holiday_provider = $this->provider->getBankHolidayProvider($this->getStart()->year, 2);
 
         foreach ($date_range as $value) {
             if (!$value->isSaturday() && !$value->isSunday()) {

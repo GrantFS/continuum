@@ -2,7 +2,7 @@
 
 namespace Loopy\Continuum\Classes\Academic;
 
-use Continuum;
+use Loopy\Continuum\Services\Continuum;
 use Carbon\Carbon;
 use \Illuminate\Support\Collection;
 
@@ -89,7 +89,8 @@ class AcademicTerm extends Term
         $half_term_start = $this->getHalfTerm();
         $half_term_end = clone $half_term_start;
         $half_term_end = $half_term_end->addDays(7);
-        return Continuum::compare()->getDatesBetween($half_term_start->format('Y-m-d'), $half_term_end->format('Y-m-d'));
+        $provider = new Continuum;
+        return $provider->compare()->getDatesBetween($half_term_start->format('Y-m-d'), $half_term_end->format('Y-m-d'));
     }
 
     public function getWeekCountWithoutHolidays() : int
