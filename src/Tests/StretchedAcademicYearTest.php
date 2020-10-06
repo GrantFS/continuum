@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Loopy\Continuum\Tests;
 
 use Carbon\Carbon;
 use Loopy\Continuum\Classes\Academic\StretchedAcademicYear;

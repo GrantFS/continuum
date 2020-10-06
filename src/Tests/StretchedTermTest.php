@@ -1,34 +1,34 @@
 <?php
 
-namespace Tests\Unit;
+namespace Loopy\Continuum\Tests;
 
 use Carbon\Carbon;
 use Loopy\Continuum\Classes\Academic\AcademicDates;
-use Loopy\Continuum\Classes\Academic\AcademicTerm;
+use Loopy\Continuum\Classes\Academic\StretchedTerm;
 use Tests\TestCase;
 
-class AcademicTermTest extends TestCase
+class StretchedTermTest extends TestCase
 {
     protected $provider;
     /*
-    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/tests/AcademicTermTest.php
+    * vendor/phpunit/phpunit/phpunit ../loopy/continuum/tests/StretchedTermTest.php
     */
     public function testGetDays()
     {
         $days = $this->provider->getDays();
         $this->assertTrue(is_int($days->first()));
         $this->assertEquals($days['2020-09-07'], 1);
-        $this->assertEquals($days['2020-12-18'], 5);
-        $this->assertCount(74, $days);
+        $this->assertEquals($days['2020-12-31'], 4);
+        $this->assertCount(83, $days);
     }
 
     public function testGetWeeks()
     {
         $weeks = $this->provider->getWeeks();
         $this->assertInstanceOf(Carbon::class, $weeks->first());
-        $this->assertCount(14, $weeks);
+        $this->assertCount(17, $weeks);
         $this->assertEquals($weeks->first()->format('Y-m-d'), '2020-09-07');
-        $this->assertEquals($weeks->last()->format('Y-m-d'), '2020-12-14');
+        $this->assertEquals($weeks->last()->format('Y-m-d'), '2020-12-28');
     }
 
     public function testGetMonths()
@@ -43,14 +43,14 @@ class AcademicTermTest extends TestCase
     public function testGetDayCount()
     {
         $days = $this->provider->getDayCount();
-        $this->assertEquals($days, 69);
+        $this->assertEquals($days, 82);
         $this->assertTrue(is_int($days));
     }
 
     public function testGetWeekCount()
     {
         $weeks = $this->provider->getWeekCount();
-        $this->assertEquals($weeks, 13);
+        $this->assertEquals($weeks, 16);
         $this->assertTrue(is_int($weeks));
     }
 
@@ -63,14 +63,11 @@ class AcademicTermTest extends TestCase
 
     public function testGetBankHolidays()
     {
-        $start = $this->year_provider->getFirstDayOfSummerTerm();
-        $end = $this->year_provider->getLastDayOfSummerTerm();
-        $this->provider->setStart($start)->setEnd($end)->setTermDates();
         $bank_holidays = $this->provider->getBankHolidays();
         $this->assertInstanceOf(Carbon::class, $bank_holidays->first());
         $this->assertCount(2, $bank_holidays);
-        $this->assertEquals($bank_holidays->first()->format('Y-m-d'), '2021-05-03');
-        $this->assertEquals($bank_holidays->last()->format('Y-m-d'), '2021-05-31');
+        $this->assertEquals($bank_holidays->first()->format('Y-m-d'), '2020-12-25');
+        $this->assertEquals($bank_holidays->last()->format('Y-m-d'), '2021-01-01');
     }
 
     public function testGetClosedDates()
@@ -92,7 +89,7 @@ class AcademicTermTest extends TestCase
         $this->year_provider->setStartYear($start_year);
 
         $start = $this->year_provider->getFirstDayOfAutumnTerm();
-        $end = $this->year_provider->getLastDayOfAutumnTerm();
-        $this->provider = new AcademicTerm($start, $end);
+        $end = $this->year_provider->getLastDayOfChristmasHolidays();
+        $this->provider = new StretchedTerm($start, $end);
     }
 }
