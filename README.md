@@ -46,6 +46,8 @@ Continuum::compare()
 
 ```
 
+### Comparisons
+
 getMinutesBetween($start_time, $end_time) : int
 returns the difference in minutes
 
@@ -67,6 +69,8 @@ returns a date period of months between
 Continuum::convert()
 
 ```
+
+### Conversions
 
 dayNumberToName($day_number) : string
 returns the name of the day of the week
