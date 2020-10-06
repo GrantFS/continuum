@@ -25,7 +25,7 @@ class BankHolidayProvider implements JsonSerializable
         })->count() > 0;
     }
 
-    public function getBankHolidays() : Collection
+    public function get() : Collection
     {
         return $this->bank_holidays;
     }
@@ -105,7 +105,7 @@ class BankHolidayProvider implements JsonSerializable
             $number_of_years --;
 
             $next_year = new self($this->year +1, $number_of_years);
-            $this->bank_holidays = $this->bank_holidays->merge($next_year->getBankHolidays());
+            $this->bank_holidays = $this->bank_holidays->merge($next_year->get());
         }
     }
 }

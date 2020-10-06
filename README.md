@@ -159,5 +159,5 @@ returns array of months in tax year
 
 ```
     /* Return All the Bank Holidays for 2020 */
-    Continuum::bankHolidays(2020)->getBankHolidays();
+    Continuum::bankHolidays(2020)->get();
 ```
