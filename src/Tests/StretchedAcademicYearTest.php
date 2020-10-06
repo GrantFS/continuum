@@ -7,7 +7,7 @@ use Loopy\Continuum\Classes\Academic\StretchedAcademicYear;
 use Loopy\Continuum\Classes\Academic\Term;
 use Tests\TestCase;
 
-class AcademicYearTest extends TestCase
+class StretchedsAcademicYearTest extends TestCase
 {
     protected $provider;
     /*
