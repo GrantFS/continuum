@@ -92,7 +92,7 @@ returns minutes of the time
 toHour($time) : int
 returns hours of the time
 
-## Others
+### Others
 
 getMonthsRange : DatePeriod
 returns 6 months before and after today as a range.
